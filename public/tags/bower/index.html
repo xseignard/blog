@@ -1,0 +1,65 @@
+
+
+
+<h2 class="archive-title tag">bower</h2>
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-02-18T14:33:26.000Z"><a href="/2013/02/18/use-bower-with-heroku/">Feb 18 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/02/18/use-bower-with-heroku/">Use bower with heroku</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Hello!</p>
+<p><a href="http://twitter.github.com/bower/">Bower</a> is pretty awsome! <a href="http://www.heroku.com/">Heroku</a> too!</p>
+<p>Use them together!</p>
+<p>Without creating your own Heroku <a href="https://devcenter.heroku.com/articles/buildpacks">buildpack</a>, you can achieve that quite easily.</p>
+<p>Just add a dependency to Bower in your <code>package.json</code> and then rely on the <code>npm scripts</code> to execute a <code>postinstall</code> command (<a href="https://npmjs.org/doc/scripts.html">https://npmjs.org/doc/scripts.html</a>).</p>
+<p>So you&#39;ll end up with somthing like this in your <code>package.json</code>:</p>
+<pre><code><span class="string">"dependencies"</span>: {
+    <span class="string">"bower"</span>: <span class="string">"0.6.x"</span>
+},
+<span class="string">"scripts"</span>: {
+    <span class="string">"postinstall"</span>: <span class="string">"./node_modules/bower/bin/bower install"</span>
+}
+</code></pre>
+
+<p>And that&#39;s it! Heroku will run a <code>npm install</code> that will execute the <code>bower install</code>.</p>
+<p><em>Pros:</em> one command to rule them all.</p>
+<p><em>Cons:</em> you unnecessarily embed bower as a dependency.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/02/18/use-bower-with-heroku/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+  
+
+  <nav id="pagination">
+  
+  
+  <div class="clearfix"></div>
+</nav>

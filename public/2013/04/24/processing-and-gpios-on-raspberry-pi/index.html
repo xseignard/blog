@@ -1,0 +1,553 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Processing and GPIOs on Raspberry Pi | /dev/xavier</title>
+  <meta name="author" content="@xavier_seignard">
+  
+  <meta name="description" content="show me some code!">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Processing and GPIOs on Raspberry Pi"/>
+  <meta property="og:site_name" content="/dev/xavier"/>
+
+  <!-- TWITTER CARD -->
+  <!-- card type -->
+  
+  <meta property="twitter:card" content="summary"/>
+  
+  <!-- site -->
+  <meta property="twitter:site" content="@xavier_seignard"/>
+  <!-- author -->
+  <meta property="twitter:creator" content="@xavier_seignard"/>
+  <!-- title -->
+  
+  <meta property="twitter:title" content="Processing and GPIOs on Raspberry Pi"/>
+  
+  <!-- description -->
+  
+  <meta name="twitter:description" content="Hello,
+Processing is a nice programming language for creative coding, and you can physically interact with the Raspberry Pi thanks to its GPIOs. So why not combining them?
+Let&amp;#39;s do it.
+Prerequisites
+
+A Raspberry Pi (sic!) running with a Raspbian image (it may work on other configurations, but not tested).
+All command line below are executed from the home directory (i.e. /home/pi/ for the pi user).
+You may need to install some tools sudo apt-get install unzip ca-certificates.
+
+Install Oracle JDK8 on the Raspberry Pi
+The idea of installing JDK8 is not to enjoy those long awaited Lambdas, but to provide the execution platform for Processing. Luckily, Oracle started to provide builds of the JDK for the arm platform.
+Download the JDK.
+wget --no-check-certificate http://www.java.net/download/JavaFXarm/jdk-8-ea-b36e-linux-arm-hflt-29_nov_2012.tar.gz
+
+
+Untar the binaries at the right place.
+sudo mkdir -p /opt/java
+tar xvzf jdk-8-ea-b36e-linux-arm-hflt-29_nov_2012.tar.gz
+sudo mv jdk1.8.0 /opt/java
+
+
+Then, you must tell raspbian to use these binaries to provide java.
+sudo update-alternatives --install &quot;/usr/bin/java&quot; &quot;java&quot; &quot;/opt/java/jdk1.8.0/bin/java&quot; 1
+
+
+If you already had another java version installed, you may need to choose the one we just installed, if not you can skip this.
+sudo update-alternatives --config java
+
+
+And choose the JDK8 by entering the corresponding number.
+Now you need to define some environment variables for java to run properly.
+echo export JAVA_HOME=&quot;/opt/java/jdk1.8.0&quot; &gt;&gt; .bashrc
+echo export PATH=$PATH:$JAVA_HOME/bin &gt;&gt; .bashrc
+source .bashrc
+
+
+It will add the environment variables at the end of your .bashrc. If you use zsh (and you should! with oh-my-zsh), just replace .bashrc with .zshrc in the three lines of code above.
+Java is now installed, and you can check it with java -version. It should display something like this:
+java version &quot;1.8.0-ea&quot;
+Java(TM) SE Runtime Environment (build 1.8.0-ea-b36e)
+Java HotSpot(TM) Client VM (build 25.0-b04, mixed mode)
+
+
+Also check the environment variables, it should return something.
+echo $JAVA_HOME | grep /opt/java/jdk1.8.0
+echo $PATH | grep /opt/java/jdk1.8.0/bin
+
+
+If those checks are not ok, something went wrong, feel free to drop a comment.
+Install Processing
+The long awaited 2.0 final version is still not here (at the time of writing), but you can download the last beta.
+wget http://processing.googlecode.com/files/processing-2.0b8-linux32.tgz
+
+
+Notice we&amp;#39;ll use a x86 version, no worries we&amp;#39;ll deal with it.
+Untar it
+tar xvzf processing-2.0b8-linux32.tgz
+
+
+Java is bundled with Processing, so we need to tell it to use the java version we installed rather than the bundled one. To do that, we&amp;#39;ll remove the java folder inside processing and replace this folder with a symbolic link to the java version we installed.
+rm -rf processing-2.0b8/java
+ln -s $JAVA_HOME processing-2.0b8/java
+
+
+Processing is now installed! You can now log in the UI of the Raspberry (if not already) and run processing from the terminal with the following:
+cd ~/processing-2.0b8;./processing
+
+
+You&amp;#39;ll have to wait a little bit to see the UI coming up.
+You may notice some error messages in the terminal, but so far it had no incidence for me, so I ignore them.
+Install a library to interact with GPIOs
+So far, I haven&amp;#39;t found any Processing ready library, so I&amp;#39;ll use the Pi4J java library.
+Processing has a particular way to handle library, you need to have a special structure in the folders. And Pi4J is not packaged according to the Processing convention. So you&amp;#39;ll need to re-arrange stuff (see http://wiki.processing.org/w/How_to_Install_a_Contributed_Library).
+First, go back to the /home/pi folder in the terminal.
+Then download the Pi4J lib and unzip it:
+wget https://pi4j.googlecode.com/files/pi4j-0.0.5.zip
+unzip pi4j-0.0.5.zip
+
+
+Since Processing is not happy when a lib have something else than letters and numbers in the lib name, you need to rename the unzipped folder.
+mv pi4j-0.0.5 pi4j
+
+
+Then you need to re-arrange files to stick with the Processing convention.
+mv pi4j/lib pi4j/library
+mv pi4j/library/pi4j-core.jar pi4j/library/pi4j.jar
+
+
+Now you can put the lib in the Processing library folder (defaults to ~/sketchbook/libraries).
+mv pi4j sketchbook/libraries
+
+
+Done! You can now import Pi4J in your Processing sketch!
+Getting started with Pi4J
+Here is a simple skecth which will add an ellipse every time a button is pressed.
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinDigitalInput;
+import com.pi4j.io.gpio.PinPullResistance;
+import com.pi4j.io.gpio.RaspiPin;
+
+int WIDTH = 1280;
+int HEIGHT = 1024;
+GpioController gpio;
+GpioPinDigitalInput button;
+
+void setup() {
+	size(WIDTH, HEIGHT);
+	gpio = GpioFactory.getInstance();
+	button = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_DOWN);
+}
+
+void draw() {
+	if (button.isHigh()) {
+		println(&quot;pressed&quot;);
+		fill(int(random(255)), int(random(255)), int(random(255)));
+		float x = random(WIDTH);
+		float y = random(HEIGHT);
+		ellipse(x, y, 80, 80);
+	};
+}
+
+
+I invite you to read the Pi4J documentation to dive into it. You should use events rather than testing the state of a button as shown above (see http://pi4j.com/example/listener.html).
+Here is the wiring schema that comes along the sketch from above (borrowed from http://pi4j.com/).
+
+If you try to run it, you&amp;#39;ll face some permission issues since Pi4J require root privileges to access GPIOs. For now I export the application and run it with sudo to bypass it. It should exist a cleaner way to handle it. I&amp;#39;ll update this post with a proper solution if there is.
+You are ready to poop some creative code! Enjoy!">
+  
+  <!-- image -->
+  
+  <!-- TWITTER CARD -->
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="/dev/xavier" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37483328-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+<!-- 
+.......................................................................................... .........
+.......................................................................................... .........
+.................................mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm............. .........
+.........................mmmmmmmmmmmmmmmm..................................mmmmm.......... .........
+...................mmmmmmmmmmm..........mmmmm...............mm................mmm......... .........
+.................mmmm............................................mm.............mmm....... .........
+..............mmmm....m..mmmmmm............mmm..............mm......m............mmm...... .........
+............mmmm.................................................mm....m..........mmm..... .........
+...........mmm............mmmmm....................m..........mmm...m....m.........mmm.... .........
+..........mm...........m.........................m................mm...m....m.......mmm... .........
+..........mm.........m............m..................................m..m....m.......mm... .........
+..........mm........m..................................................m..m...........mm.. .........
+.........mm..........................................mmmmmmmmmmmmmm...................mmm. .........
+........mmm............mmmmmmmm...................mmmmm...mmmmmmmmmmmm.................mmm .........
+....mmmm...........mmmmmmmmmmmmmm.............mmmm......mmmmmmmm..mmm..................mmm .......
+...mmm...mmmmm.mmm.mmmmmmmmmmmmmmm...........mmm.....mmmmmmmmmmmmmmmmm....m....mmmmmmmm.mm mm.....
+..mm...m..................mmmmmmmmmmmmm.......mmmmmmmmm...........mm...m.................. mmm....
+.mm..m...mm.....................mmmm...........mmmmm......mmm..............mmmmmmmmmm..... ..mm...
+.mm.m..m...mmmmmm................mm.........................mmmm.......mmmmmm......mmmm... .m.mm..
+.mmm.....mmmmmmmmmm....m.........mm...........................mmmmmmmmmmm.....mm.....mmm.. .m..mmm
+.mmm.....m.......mmmmmmmm........mm...........................................mm......mm.. .m..mmm
+.mmm..m.......mm..mmmm........mmmm.........................................mmmmm.......mm. .m...mm
+.mm....m......mm...........mmmm................mmmmmmmm................mmmmm...mmmmmm..mm. .m...mm
+.mmmm...mm..mmmm..........mmmmm....................mm..............mmmmmm.....mmm.mmm.mmm. .m..mmm
+..mm.mm.....mmmm.......mm..mmmmm.........mmmmmmm...mm..........mmmmmmm........mm......mm.. ....mmm
+..mmm....m..mm.mmm...m........mmm..............m.mmm......mmmmmmmm.mm.......mmmm.....mm... m..mmm.
+...mmm.....mmmmmmmmm............mmmmmm...............mmmmmmmm......mm....mmmmmm.........mm ..mm...
+....mmm....mm.mm.mmmmmm...........mmm...........mmmmmmmm..........mmm.mmmmmmmm.......m.... .mmm...
+.....mm....mmmm..mm..mmmmmmmm........mmmmmmmmmmmmmm..mm..........mmmmmmm..mmm..........mmm mm.....
+.....mm....mmmm..mm....mmmmmmmmmmmmmmmmmmmm..........mm......mmmmmmmm....mmm............mm m......
+.....mm....mmmm..mm...mmm.......mm.......mm..........mmm.mmmmmmmmm.mm...mmm...........mmm. .......
+.....mm....mmmmmmmm...mm........mm.......mm.........mmmmmmmmmmm....mm..mmm...........mmm.. .......
+.....mm....mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.......mmmmmm............mm... .......
+.....mm....mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.mm...........mmm.............mmm... .......
+.....mm.....mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.......mm.........mmm..............mmm.... .......
+.....mm.....mm.mmmmmmmmmmmmmmmmmmmmmmmmmmm.mm..........mmm.....mmmm...............mmm..... .......
+.....mm......mm.mm..mm...mm.....mmm........mm...........mm...mmmm...............mmm....... .......
+.....mm......mmmmmm.mmm...mm.....mm........mm............mmmmmm................mmm........ .......
+.....mm.......mmmm...mmm..mmm....mm........mm.........mmmmmm.......m.....m...mmm.......... .......
+.....mm.........mmmmmmmmm..mm....mmm.......mm..mmmmmmmmm........m.....mm...mmmm........... .......
+.....mm..............mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.........mm....mm....mmmm ...............
+....mmm........m..........................................m.....mm....mmmmm.. ..............
+....mm..........m....................................mm......m.....mmmmm..... ..............
+....mm............m..............................mm......mm.....mmmmm........ ..............
+..mm.....mm........mmm...........mmmmmmmmmm......mm.......mmmmmm....... ............
+.mm.........m.........................mmm............mmmmm...... ........
+.mmm..........mmmmmmmmmmmmmmm.....................mmmmm...... ....
+.mmm..........................................mmmmm...... ..
+..mmm...................................mm.mmmmm....... 
+...mmmm............................mmmmmmmmmm........ 
+....mmmmm...................mmmmmmmmm.............. 
+.......mmmmmmmmmmmmmmmmmmmmmmmm....................
+-->
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">/dev/xavier</a></h1>
+  <h2><a href="/">show me some code</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+
+<article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-04-24T09:49:12.000Z"><a href="/2013/04/24/processing-and-gpios-on-raspberry-pi/">Apr 24 2013</a></time>
+      
+      
+  
+    <h1 class="title">Processing and GPIOs on Raspberry Pi</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Hello,</p>
+<p><a href="http://www.processing.org/">Processing</a> is a nice <em>programming language</em> for creative coding, and you can physically interact with the <a href="http://www.raspberrypi.org/">Raspberry Pi</a> thanks to its GPIOs. So why not combining them?</p>
+<p>Let&#39;s do it.</p>
+<h1>Prerequisites</h1>
+<ul>
+<li>A Raspberry Pi (<em>sic</em>!) running with a Raspbian image (it may work on other configurations, but not tested).</li>
+<li>All command line below are executed from the home directory (i.e. <code>/home/pi/</code> for the pi user).</li>
+<li>You may need to install some tools <code>sudo apt-get install unzip ca-certificates</code>.</li>
+</ul>
+<h1>Install Oracle JDK8 on the Raspberry Pi</h1>
+<p>The idea of installing JDK8 is not to enjoy those long awaited Lambdas, but to provide the execution platform for Processing. Luckily, Oracle started to provide builds of the JDK for the arm platform.</p>
+<p>Download the JDK.</p>
+<pre><code>wget --no-check-certificate http:<span class="comment">//www.java.net/download/JavaFXarm/jdk-8-ea-b36e-linux-arm-hflt-29_nov_2012.tar.gz</span>
+</code></pre>
+
+<p>Untar the binaries at the right place.</p>
+<pre><code>sudo mkdir -p /opt/java
+tar xvzf jdk-<span class="number">8</span>-ea-b36e-linux-arm-hflt-<span class="number">29</span>_nov_2012.tar.gz
+sudo mv jdk1<span class="number">.8</span><span class="number">.0</span> /opt/java
+</code></pre>
+
+<p>Then, you must tell raspbian to use these binaries to provide <code>java</code>.</p>
+<pre><code>sudo update-alternatives --install <span class="string">"/usr/bin/java"</span> <span class="string">"java"</span> <span class="string">"/opt/java/jdk1.8.0/bin/java"</span> <span class="number">1</span>
+</code></pre>
+
+<p>If you already had another <code>java</code> version installed, you may need to choose the one we just installed, if not you can skip this.</p>
+<pre><code>sudo update-alternatives --config java
+</code></pre>
+
+<p>And choose the JDK8 by entering the corresponding number.</p>
+<p>Now you need to define some environment variables for <code>java</code> to run properly.</p>
+<pre><code>echo export JAVA_HOME=<span class="string">"/opt/java/jdk1.8.0"</span> &gt;&gt; .bashrc
+echo export PATH=$PATH:$JAVA_HOME/bin &gt;&gt; .bashrc
+source .bashrc
+</code></pre>
+
+<p>It will add the environment variables at the end of your <code>.bashrc</code>. If you use <code>zsh</code> (and you should! with <a href="https://github.com/robbyrussell/oh-my-zsh">oh-my-zsh</a>), just replace <code>.bashrc</code> with <code>.zshrc</code> in the three lines of code above.</p>
+<p>Java is now installed, and you can check it with <code>java -version</code>. It should display something like this:</p>
+<pre><code>java version <span class="string">"1.8.0-ea"</span>
+Java(TM) SE Runtime Environment (build <span class="number">1.8</span><span class="number">.0</span>-ea-b36e)
+Java HotSpot(TM) Client VM (build <span class="number">25.0</span>-b04, mixed mode)
+</code></pre>
+
+<p>Also check the environment variables, it should return something.</p>
+<pre><code>echo $JAVA_HOME | grep /opt/java/jdk1<span class="number">.8</span><span class="number">.0</span>
+echo $PATH | grep /opt/java/jdk1<span class="number">.8</span><span class="number">.0</span>/bin
+</code></pre>
+
+<p>If those checks are not ok, something went wrong, feel free to drop a comment.</p>
+<h1>Install Processing</h1>
+<p>The long awaited 2.0 final version is still not here (at the time of writing), but you can download the last beta.</p>
+<pre><code>wget http:<span class="comment">//processing.googlecode.com/files/processing-2.0b8-linux32.tgz</span>
+</code></pre>
+
+<p>Notice we&#39;ll use a x86 version, no worries we&#39;ll deal with it.</p>
+<p>Untar it</p>
+<pre><code>tar xvzf processing-<span class="number">2.0</span>b8-linux32.tgz
+</code></pre>
+
+<p>Java is bundled with Processing, so we need to tell it to use the java version we installed rather than the bundled one. To do that, we&#39;ll remove the java folder inside processing and replace this folder with a symbolic link to the java version we installed.</p>
+<pre><code>rm -rf processing-<span class="number">2.0</span>b8/java
+ln -s $JAVA_HOME processing-<span class="number">2.0</span>b8/java
+</code></pre>
+
+<p>Processing is now installed! You can now log in the UI of the Raspberry (if not already) and run processing from the terminal with the following:</p>
+<pre><code>cd ~/processing-<span class="number">2.0</span>b8;./processing
+</code></pre>
+
+<p>You&#39;ll have to wait a little bit to see the UI coming up.</p>
+<p>You may notice some error messages in the terminal, but so far it had no incidence for me, so I ignore them.</p>
+<h1>Install a library to interact with GPIOs</h1>
+<p>So far, I haven&#39;t found any Processing <em>ready</em> library, so I&#39;ll use the <a href="http://pi4j.com/">Pi4J</a> java library.</p>
+<p>Processing has a particular way to handle library, you need to have a special structure in the folders. And Pi4J is not packaged according to the Processing convention. So you&#39;ll need to re-arrange stuff (see <a href="http://wiki.processing.org/w/How_to_Install_a_Contributed_Library">http://wiki.processing.org/w/How_to_Install_a_Contributed_Library</a>).</p>
+<p>First, go back to the <code>/home/pi</code> folder in the terminal.</p>
+<p>Then download the Pi4J lib and unzip it:</p>
+<pre><code>wget https:<span class="comment">//pi4j.googlecode.com/files/pi4j-0.0.5.zip</span>
+unzip pi4j-<span class="number">0.0</span><span class="number">.5</span>.zip
+</code></pre>
+
+<p>Since Processing is not happy when a lib have something else than letters and numbers in the lib name, you need to rename the unzipped folder.</p>
+<pre><code>mv pi4j-<span class="number">0.0</span><span class="number">.5</span> pi4j
+</code></pre>
+
+<p>Then you need to re-arrange files to stick with the Processing convention.</p>
+<pre><code>mv pi4j/lib pi4j/library
+mv pi4j/library/pi4j-core.jar pi4j/library/pi4j.jar
+</code></pre>
+
+<p>Now you can put the lib in the Processing library folder (defaults to <code>~/sketchbook/libraries</code>).</p>
+<pre><code>mv pi4j sketchbook/libraries
+</code></pre>
+
+<p>Done! You can now import Pi4J in your Processing sketch!</p>
+<h1>Getting started with Pi4J</h1>
+<p>Here is a simple skecth which will add an ellipse every time a button is pressed.</p>
+<pre><code><span class="keyword">import</span> com.pi4j.io.gpio.GpioController;
+<span class="keyword">import</span> com.pi4j.io.gpio.GpioFactory;
+<span class="keyword">import</span> com.pi4j.io.gpio.GpioPinDigitalInput;
+<span class="keyword">import</span> com.pi4j.io.gpio.PinPullResistance;
+<span class="keyword">import</span> com.pi4j.io.gpio.RaspiPin;
+
+<span class="keyword">int</span> WIDTH = <span class="number">1280</span>;
+<span class="keyword">int</span> HEIGHT = <span class="number">1024</span>;
+GpioController gpio;
+GpioPinDigitalInput button;
+
+<span class="keyword">void</span> setup() {
+	size(WIDTH, HEIGHT);
+	gpio = GpioFactory.getInstance();
+	button = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_DOWN);
+}
+
+<span class="keyword">void</span> draw() {
+	<span class="keyword">if</span> (button.isHigh()) {
+		println(<span class="string">"pressed"</span>);
+		fill(<span class="keyword">int</span>(random(<span class="number">255</span>)), <span class="keyword">int</span>(random(<span class="number">255</span>)), <span class="keyword">int</span>(random(<span class="number">255</span>)));
+		<span class="keyword">float</span> x = random(WIDTH);
+		<span class="keyword">float</span> y = random(HEIGHT);
+		ellipse(x, y, <span class="number">80</span>, <span class="number">80</span>);
+	};
+}
+</code></pre>
+
+<p>I invite you to read the Pi4J documentation to dive into it. You should use events rather than testing the state of a button as shown above (see <a href="http://pi4j.com/example/listener.html">http://pi4j.com/example/listener.html</a>).</p>
+<p>Here is the wiring schema that comes along the sketch from above (borrowed from <a href="http://pi4j.com/">http://pi4j.com/</a>).
+<img src="http://pi4j.com/images/gpio-listener-example.png" alt=""></p>
+<p>If you try to run it, you&#39;ll face some permission issues since Pi4J require root privileges to access GPIOs. For now I export the application and run it with <code>sudo</code> to bypass it. It should exist a cleaner way to handle it. I&#39;ll update this post with a proper solution if there is.</p>
+<p>You are ready to poop some creative code! Enjoy!</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/processing/">processing</a>, <a href="/tags/java/">java</a>, <a href="/tags/raspberry/">raspberry</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="twitter-share-button addthis_button_tweet" data-via="xavier_seignard"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">Comments</h1>
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</div></div>
+    <aside id="sidebar" class="alignright">
+<div class="search">
+  <form action="http://google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:xseignard.github.io">
+  </form>
+</div>
+
+
+
+
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/github/">github</a><small>1</small></li>
+  
+    <li><a href="/tags/node/">node</a><small>4</small></li>
+  
+    <li><a href="/tags/travis/">travis</a><small>1</small></li>
+  
+    <li><a href="/tags/heroku/">heroku</a><small>1</small></li>
+  
+    <li><a href="/tags/js/">js</a><small>1</small></li>
+  
+    <li><a href="/tags/bower/">bower</a><small>1</small></li>
+  
+    <li><a href="/tags/processing/">processing</a><small>1</small></li>
+  
+    <li><a href="/tags/java/">java</a><small>1</small></li>
+  
+    <li><a href="/tags/raspberry/">raspberry</a><small>2</small></li>
+  
+    <li><a href="/tags/mocha/">mocha</a><small>1</small></li>
+  
+    <li><a href="/tags/istanbul/">istanbul</a><small>1</small></li>
+  
+    <li><a href="/tags/sonar/">sonar</a><small>1</small></li>
+  
+    <li><a href="/tags/DIY/">DIY</a><small>2</small></li>
+  
+    <li><a href="/tags/leapmotion/">leapmotion</a><small>1</small></li>
+  
+    <li><a href="/tags/diy/">diy</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+
+<div class="widget twitter">
+  <h3 class="title">Tweets</h3>
+  <ul id="tweets"></ul>
+</div>
+
+<script type="text/javascript">
+var twitter_conf = ['xavier_seignard', '364346162255368193'];
+</script>
+
+<script src="/js/twitter.js"></script>
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 @xavier_seignard
+  
+</div>
+<div class="alignright">
+  Proudly powered by <a href="http://zespia.tw/hexo/">Hexo</a><br/>
+  Gently hosted at <a href="http://github.com">Github</a><br/>
+  Nice background from <a href="http://subtlepatterns.com/">Subtle Patterns</a>
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+var disqus_shortname = 'xseignard';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

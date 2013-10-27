@@ -1,0 +1,144 @@
+
+
+
+<h2 class="archive-title tag">sonar</h2>
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-04-25T08:38:41.000Z"><a href="/2013/04/25/quality-analysis-on-node.js-projects-with-mocha-istanbul-and-sonar/">Apr 25 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/04/25/quality-analysis-on-node.js-projects-with-mocha-istanbul-and-sonar/">Quality analysis on Node.js projects with Mocha, Istanbul and Sonar</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Hello,</p>
+<p>What about having a nice dashboard for the code quality of your project? <a href="http://www.sonarsource.org">Sonar</a> is a well known open source tool to handle that.</p>
+<p>It handles a wide range of programming languages, from COBOL to Javascript. So let&#39;s give a try to run Sonar on Node.js projects!</p>
+<h1>Prerequisites</h1>
+<ul>
+<li>I will cover the use of Sonar with <a href="http://visionmedia.github.io/mocha/">Mocha</a> and <a href="https://github.com/gotwarlost/istanbul">Istanbul</a>, my tools of choice when it comes to js testing. But if you are able to generate xunit ans lcov reports from your test suite, chances the stuff I describe here will also work.</li>
+<li>You need to install Sonar : <a href="http://docs.codehaus.org/display/SONAR/Installation+and+Upgrade">http://docs.codehaus.org/display/SONAR/Installation+and+Upgrade</a></li>
+<li>And the Sonar Javascript plugin : <a href="http://docs.codehaus.org/display/SONAR/JavaScript+Plugin">http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</a></li>
+<li>You&#39;ll also need Make : <a href="http://www.gnu.org/software/make/">http://www.gnu.org/software/make/</a> which is the build tool I use for Node.js (we could use <a href="http://gruntjs.com/">Grunt</a>, but I still need good arguments to switch to it for node.js, if you have some let me know!)</li>
+</ul>
+<h1>Testing with Mocha</h1>
+<p>Mocha has a lot of built-in functionalities and is extensible. We&#39;ll see this point will be really important. Because of its extensibility, you can output your tests results in various formats. If you don&#39;t know Mocha, you should give it a try!</p>
+<p>So far, Sonar only handles the xunit format as input, so you need a Mocha reporter that can handle it. There is a bundled reporter in Mocha that achieve that, but you need to pipe the console output to the xunit file by yourself. </p>
+<p>You could also use the following reporter plugin that does the work for you : <a href="https://github.com/peerigon/xunit-file">https://github.com/peerigon/xunit-file</a></p>
+<p>So install it : <code>npm install xunit-file --save-dev</code> and then it&#39;s just a matter of setting an environment variable during the build to tell where to output the file.</p>
+<p>So the xunit task in my <code>Makefile</code> look like this :</p>
+<pre><code>xunit:
+	<span class="variable">@#</span> check <span class="keyword">if</span> reports folder <span class="keyword">exists</span>, <span class="keyword">if</span> <span class="keyword">not</span> create it
+	<span class="variable">@test</span> -d reports || <span class="keyword">mkdir</span> reports
+	XUNIT_FILE=<span class="string">"reports/TESTS-xunit.xml"</span> <span class="variable">$(</span>MOCHA) -R xunit-file <span class="variable">$(</span>TESTS)
+</code></pre>
+
+<p>Where <code>$(TESTS)</code> is the list of tests. Since I use a convention to name my tests (they always end with <code>.test.js</code>) I can retrieve them easily.</p>
+<pre><code><span class="setting">TESTS=<span class="value">$(shell find test/ -name <span class="string">"*.test.js"</span>)</span></span>
+</code></pre>
+
+<p>And <code>$(MOCHA)</code> points to the mocha binary. I tend to install the tools I use inside the project rather than globally, it let me handle specific version of them for each project and gives the project some portability. But I don&#39;t know if it&#39;s a good practice or not. Feel free to drop a comment!</p>
+<pre><code><span class="setting">MOCHA=<span class="value">node_modules/.bin/mocha</span></span>
+</code></pre>
+
+<p>You may have noticed the weird name I gave to the xunit output file : <code>TESTS-xunit.xml</code>, it&#39;s really important it starts with <code>TESTS</code>! If not, you won&#39;t be able to gather tests metrics in Sonar. </p>
+<p>If you dig into the code of Sonar, here is why : <a href="https://github.com/SonarSource/sonar-java/blob/master/sonar-surefire-plugin/src/main/java/org/sonar/plugins/surefire/api/AbstractSurefireParser.java#L67">https://github.com/SonarSource/sonar-java/blob/master/sonar-surefire-plugin/src/main/java/org/sonar/plugins/surefire/api/AbstractSurefireParser.java#L67</a></p>
+<p>You now have a test report ready to be consumed by Sonar (and Jenkins too if you want!).</p>
+<h1>Code coverage with Istanbul</h1>
+<p>Istanbul is the new cool kid when it comes to code coverage. And it is pretty simple to use! </p>
+<p><code>instabul cover myNodeCommand</code> will transparently add coverage info to the executed node command!</p>
+<p>Since <code>mocha</code> is a node command, everything is ok!</p>
+<p>You can just do the following</p>
+<pre><code><span class="comment">_MOCHA=node_modules/</span>.<span class="comment">bin/_mocha</span>
+<span class="comment">coverage:</span>
+<span class="comment">	@#</span> <span class="comment">check</span> <span class="comment">if</span> <span class="comment">reports</span> <span class="comment">folder</span> <span class="comment">exists</span>, <span class="comment">if</span> <span class="comment">not</span> <span class="comment">create</span> <span class="comment">it</span>
+<span class="comment">	@test</span> <span class="literal">-</span><span class="comment">d</span> <span class="comment">reports</span> <span class="comment">||</span> <span class="comment">mkdir</span> <span class="comment">reports</span>
+<span class="comment">	$(ISTANBUL)</span> <span class="comment">cover</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">report</span> <span class="comment">lcovonly</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">dir</span> <span class="string">.</span><span class="comment">/reports</span> <span class="comment">$(_MOCHA)</span> <span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="comment">R</span> <span class="comment">spec</span> <span class="comment">$(TESTS)
+</code></pre>
+
+<p>Just note the double dash to distinguish <code>istanbul</code> args from the <code>mocha</code> ones and the use of <code>_mocha</code> internal executable (see <a href="https://github.com/gotwarlost/istanbul/issues/44">istanbul/issues/44</a>).</p>
+<p>If you need to produce some other report formats (html, cobertura, etc.), you can check the <a href="https://github.com/gotwarlost/istanbul#the-report-command">report options</a>.</p>
+<h1>Sonar</h1>
+<p>Sonar analysis can be performed in various ways (ant, maven, sonar-runner). Even if i do like maven (yes I do!), there&#39;s no way I&#39;ll put a <code>pom.xml</code> in a node.js project.</p>
+<p>We&#39;ll use the <a href="http://docs.codehaus.org/display/SONAR/Analyzing+with+Sonar+Runner">sonar-runner</a>. </p>
+<p>Download it : <a href="http://docs.codehaus.org/display/SONAR/Installing+and+Configuring+Sonar+Runner">http://docs.codehaus.org/display/SONAR/Installing+and+Configuring+Sonar+Runner</a>. But, for the sake of portability I prefer to embed it in my project rather than installing it (again, I don&#39;t know if it&#39;s a good practice, but it&#39;s mine).</p>
+<p>Then, you need to configure a file at the root of your project that will drive the sonar analysis : <code>sonar-project.properties</code>. This file is really simple, it just tells Sonar where to find the reports we produced before and provide some general info about the project (see <a href="http://docs.codehaus.org/display/SONAR/JavaScript+Plugin">http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</a>).</p>
+<pre><code>sonar<span class="variable">.projectKey</span>=sonar-js
+sonar<span class="variable">.projectName</span>=sonar-js
+sonar<span class="variable">.projectVersion</span>=<span class="number">0.0</span><span class="number">.1</span>
+ 
+sonar<span class="variable">.sources</span>=src
+sonar<span class="variable">.tests</span>=test
+sonar<span class="variable">.language</span>=js
+sonar<span class="variable">.profile</span>=node
+
+sonar<span class="variable">.dynamicAnalysis</span>=reuseReports
+
+sonar<span class="variable">.javascript</span><span class="variable">.jstest</span><span class="variable">.reportsPath</span>=reports
+sonar<span class="variable">.javascript</span><span class="variable">.lcov</span><span class="variable">.reportPath</span>=reports/coverage<span class="variable">.lcov</span>
+</code></pre>
+
+<p>The file speaks by itself: project info, project directory structure and tell Sonar to reuse already generated reports and where they are.</p>
+<p>Please note that i use a custom profile which is a set of coding rules my code will be tested against. If you don&#39;t have this profile on your Sonar instance, you should delete the <code>sonar.profile=node</code>. Your code will be then tested against the default js profile, which is not really adapted for node.js. I&#39;ll come back on that.</p>
+<p>So after you have the xunit and lcov file, you can run Sonar.</p>
+<p>Here is my task in the <code>Makefile</code>:</p>
+<pre><code>sonar:
+	<span class="variable">@#</span> add the sonar sonar-runner executable to the PATH <span class="keyword">and</span> run it
+	PATH=<span class="string">"<span class="variable">$$</span>PWD/tools/sonar-runner-2.2/bin:<span class="variable">$$</span>PATH"</span> sonar-runner
+</code></pre>
+
+<p>That&#39;s it!</p>
+<p>Please note that the actual configuration in sonar-project.properties assumes the Sonar server is running on <a href="http://localhost:9000">http://localhost:9000</a>.</p>
+<p>You can change that by specifying the right values in sonar-project.properties (see <a href="http://docs.codehaus.org/display/SONAR/Analysis+Parameters">http://docs.codehaus.org/display/SONAR/Analysis+Parameters</a>).</p>
+<p>You can now browse your Sonar dashboard and see this nice report:</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/dashboard.png" alt=""></p>
+<p>In a glance, you can see the wealth of your project : tests results, code coverage, coding rules compliance, complexity, etc...</p>
+<p>You can then drill down in any metrics, to see where are the coding rules violations, which line is covered or not, etc. Just read about Sonar to see how powerful it is. You can even see how the metrics evolve between two analysis!</p>
+<p>Here is an example of code coverage report:</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/coverage-dd.png" alt=""></p>
+<p>You can find a dummy project on github that covers the ideas of this blog post : <a href="https://github.com/xseignard/sonar-js">https://github.com/xseignard/sonar-js</a></p>
+<h1>Notes</h1>
+<p>I use a custom quality profile in Sonar for Node.js (you can find it here: <a href="https://github.com/xseignard/sonar-js/blob/master/tools/node_js.xml">https://github.com/xseignard/sonar-js/blob/master/tools/node_js.xml</a>).</p>
+<p>You can install it following the docs: <a href="http://docs.codehaus.org/display/SONAR/Quality+profiles#QualityProfiles-BackupingRestoringProfile">http://docs.codehaus.org/display/SONAR/Quality+profiles#QualityProfiles-BackupingRestoringProfile</a></p>
+<p>My profile is far from ideal, and can be discussed.</p>
+<p>As I told you at the beginning, if you can generate xunit and lcov formats, you&#39;re good! So you can easily apply this technique to Angular projects, because of the mighty <a href="http://karma-runner.github.io/">Karma runner</a>, see :</p>
+<ul>
+<li>the reporters section in <a href="http://karma-runner.github.io/0.8/config/configuration-file.html">http://karma-runner.github.io/0.8/config/configuration-file.html</a></li>
+<li>the coverage page <a href="http://karma-runner.github.io/0.8/config/coverage.html">http://karma-runner.github.io/0.8/config/coverage.html</a></li>
+</ul>
+<p>Have fun.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/04/25/quality-analysis-on-node.js-projects-with-mocha-istanbul-and-sonar/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+  
+
+  <nav id="pagination">
+  
+  
+  <div class="clearfix"></div>
+</nav>

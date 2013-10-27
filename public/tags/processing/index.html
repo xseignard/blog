@@ -1,0 +1,176 @@
+
+
+
+<h2 class="archive-title tag">processing</h2>
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-04-24T09:49:12.000Z"><a href="/2013/04/24/processing-and-gpios-on-raspberry-pi/">Apr 24 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/04/24/processing-and-gpios-on-raspberry-pi/">Processing and GPIOs on Raspberry Pi</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Hello,</p>
+<p><a href="http://www.processing.org/">Processing</a> is a nice <em>programming language</em> for creative coding, and you can physically interact with the <a href="http://www.raspberrypi.org/">Raspberry Pi</a> thanks to its GPIOs. So why not combining them?</p>
+<p>Let&#39;s do it.</p>
+<h1>Prerequisites</h1>
+<ul>
+<li>A Raspberry Pi (<em>sic</em>!) running with a Raspbian image (it may work on other configurations, but not tested).</li>
+<li>All command line below are executed from the home directory (i.e. <code>/home/pi/</code> for the pi user).</li>
+<li>You may need to install some tools <code>sudo apt-get install unzip ca-certificates</code>.</li>
+</ul>
+<h1>Install Oracle JDK8 on the Raspberry Pi</h1>
+<p>The idea of installing JDK8 is not to enjoy those long awaited Lambdas, but to provide the execution platform for Processing. Luckily, Oracle started to provide builds of the JDK for the arm platform.</p>
+<p>Download the JDK.</p>
+<pre><code>wget --no-check-certificate http:<span class="comment">//www.java.net/download/JavaFXarm/jdk-8-ea-b36e-linux-arm-hflt-29_nov_2012.tar.gz</span>
+</code></pre>
+
+<p>Untar the binaries at the right place.</p>
+<pre><code>sudo mkdir -p /opt/java
+tar xvzf jdk-<span class="number">8</span>-ea-b36e-linux-arm-hflt-<span class="number">29</span>_nov_2012.tar.gz
+sudo mv jdk1<span class="number">.8</span><span class="number">.0</span> /opt/java
+</code></pre>
+
+<p>Then, you must tell raspbian to use these binaries to provide <code>java</code>.</p>
+<pre><code>sudo update-alternatives --install <span class="string">"/usr/bin/java"</span> <span class="string">"java"</span> <span class="string">"/opt/java/jdk1.8.0/bin/java"</span> <span class="number">1</span>
+</code></pre>
+
+<p>If you already had another <code>java</code> version installed, you may need to choose the one we just installed, if not you can skip this.</p>
+<pre><code>sudo update-alternatives --config java
+</code></pre>
+
+<p>And choose the JDK8 by entering the corresponding number.</p>
+<p>Now you need to define some environment variables for <code>java</code> to run properly.</p>
+<pre><code>echo export JAVA_HOME=<span class="string">"/opt/java/jdk1.8.0"</span> &gt;&gt; .bashrc
+echo export PATH=$PATH:$JAVA_HOME/bin &gt;&gt; .bashrc
+source .bashrc
+</code></pre>
+
+<p>It will add the environment variables at the end of your <code>.bashrc</code>. If you use <code>zsh</code> (and you should! with <a href="https://github.com/robbyrussell/oh-my-zsh">oh-my-zsh</a>), just replace <code>.bashrc</code> with <code>.zshrc</code> in the three lines of code above.</p>
+<p>Java is now installed, and you can check it with <code>java -version</code>. It should display something like this:</p>
+<pre><code>java version <span class="string">"1.8.0-ea"</span>
+Java(TM) SE Runtime Environment (build <span class="number">1.8</span><span class="number">.0</span>-ea-b36e)
+Java HotSpot(TM) Client VM (build <span class="number">25.0</span>-b04, mixed mode)
+</code></pre>
+
+<p>Also check the environment variables, it should return something.</p>
+<pre><code>echo $JAVA_HOME | grep /opt/java/jdk1<span class="number">.8</span><span class="number">.0</span>
+echo $PATH | grep /opt/java/jdk1<span class="number">.8</span><span class="number">.0</span>/bin
+</code></pre>
+
+<p>If those checks are not ok, something went wrong, feel free to drop a comment.</p>
+<h1>Install Processing</h1>
+<p>The long awaited 2.0 final version is still not here (at the time of writing), but you can download the last beta.</p>
+<pre><code>wget http:<span class="comment">//processing.googlecode.com/files/processing-2.0b8-linux32.tgz</span>
+</code></pre>
+
+<p>Notice we&#39;ll use a x86 version, no worries we&#39;ll deal with it.</p>
+<p>Untar it</p>
+<pre><code>tar xvzf processing-<span class="number">2.0</span>b8-linux32.tgz
+</code></pre>
+
+<p>Java is bundled with Processing, so we need to tell it to use the java version we installed rather than the bundled one. To do that, we&#39;ll remove the java folder inside processing and replace this folder with a symbolic link to the java version we installed.</p>
+<pre><code>rm -rf processing-<span class="number">2.0</span>b8/java
+ln -s $JAVA_HOME processing-<span class="number">2.0</span>b8/java
+</code></pre>
+
+<p>Processing is now installed! You can now log in the UI of the Raspberry (if not already) and run processing from the terminal with the following:</p>
+<pre><code>cd ~/processing-<span class="number">2.0</span>b8;./processing
+</code></pre>
+
+<p>You&#39;ll have to wait a little bit to see the UI coming up.</p>
+<p>You may notice some error messages in the terminal, but so far it had no incidence for me, so I ignore them.</p>
+<h1>Install a library to interact with GPIOs</h1>
+<p>So far, I haven&#39;t found any Processing <em>ready</em> library, so I&#39;ll use the <a href="http://pi4j.com/">Pi4J</a> java library.</p>
+<p>Processing has a particular way to handle library, you need to have a special structure in the folders. And Pi4J is not packaged according to the Processing convention. So you&#39;ll need to re-arrange stuff (see <a href="http://wiki.processing.org/w/How_to_Install_a_Contributed_Library">http://wiki.processing.org/w/How_to_Install_a_Contributed_Library</a>).</p>
+<p>First, go back to the <code>/home/pi</code> folder in the terminal.</p>
+<p>Then download the Pi4J lib and unzip it:</p>
+<pre><code>wget https:<span class="comment">//pi4j.googlecode.com/files/pi4j-0.0.5.zip</span>
+unzip pi4j-<span class="number">0.0</span><span class="number">.5</span>.zip
+</code></pre>
+
+<p>Since Processing is not happy when a lib have something else than letters and numbers in the lib name, you need to rename the unzipped folder.</p>
+<pre><code>mv pi4j-<span class="number">0.0</span><span class="number">.5</span> pi4j
+</code></pre>
+
+<p>Then you need to re-arrange files to stick with the Processing convention.</p>
+<pre><code>mv pi4j/lib pi4j/library
+mv pi4j/library/pi4j-core.jar pi4j/library/pi4j.jar
+</code></pre>
+
+<p>Now you can put the lib in the Processing library folder (defaults to <code>~/sketchbook/libraries</code>).</p>
+<pre><code>mv pi4j sketchbook/libraries
+</code></pre>
+
+<p>Done! You can now import Pi4J in your Processing sketch!</p>
+<h1>Getting started with Pi4J</h1>
+<p>Here is a simple skecth which will add an ellipse every time a button is pressed.</p>
+<pre><code><span class="keyword">import</span> com.pi4j.io.gpio.GpioController;
+<span class="keyword">import</span> com.pi4j.io.gpio.GpioFactory;
+<span class="keyword">import</span> com.pi4j.io.gpio.GpioPinDigitalInput;
+<span class="keyword">import</span> com.pi4j.io.gpio.PinPullResistance;
+<span class="keyword">import</span> com.pi4j.io.gpio.RaspiPin;
+
+<span class="keyword">int</span> WIDTH = <span class="number">1280</span>;
+<span class="keyword">int</span> HEIGHT = <span class="number">1024</span>;
+GpioController gpio;
+GpioPinDigitalInput button;
+
+<span class="keyword">void</span> setup() {
+	size(WIDTH, HEIGHT);
+	gpio = GpioFactory.getInstance();
+	button = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_DOWN);
+}
+
+<span class="keyword">void</span> draw() {
+	<span class="keyword">if</span> (button.isHigh()) {
+		println(<span class="string">"pressed"</span>);
+		fill(<span class="keyword">int</span>(random(<span class="number">255</span>)), <span class="keyword">int</span>(random(<span class="number">255</span>)), <span class="keyword">int</span>(random(<span class="number">255</span>)));
+		<span class="keyword">float</span> x = random(WIDTH);
+		<span class="keyword">float</span> y = random(HEIGHT);
+		ellipse(x, y, <span class="number">80</span>, <span class="number">80</span>);
+	};
+}
+</code></pre>
+
+<p>I invite you to read the Pi4J documentation to dive into it. You should use events rather than testing the state of a button as shown above (see <a href="http://pi4j.com/example/listener.html">http://pi4j.com/example/listener.html</a>).</p>
+<p>Here is the wiring schema that comes along the sketch from above (borrowed from <a href="http://pi4j.com/">http://pi4j.com/</a>).
+<img src="http://pi4j.com/images/gpio-listener-example.png" alt=""></p>
+<p>If you try to run it, you&#39;ll face some permission issues since Pi4J require root privileges to access GPIOs. For now I export the application and run it with <code>sudo</code> to bypass it. It should exist a cleaner way to handle it. I&#39;ll update this post with a proper solution if there is.</p>
+<p>You are ready to poop some creative code! Enjoy!</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/04/24/processing-and-gpios-on-raspberry-pi/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+  
+
+  <nav id="pagination">
+  
+  
+  <div class="clearfix"></div>
+</nav>

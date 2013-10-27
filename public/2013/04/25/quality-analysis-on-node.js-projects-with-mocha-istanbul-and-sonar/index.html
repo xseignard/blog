@@ -1,0 +1,487 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Quality analysis on Node.js projects with Mocha, Istanbul and Sonar | /dev/xavier</title>
+  <meta name="author" content="@xavier_seignard">
+  
+  <meta name="description" content="show me some code!">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Quality analysis on Node.js projects with Mocha, Istanbul and Sonar"/>
+  <meta property="og:site_name" content="/dev/xavier"/>
+
+  <!-- TWITTER CARD -->
+  <!-- card type -->
+  <meta property="twitter:card" content="summary"/>
+  <!-- site -->
+  <meta property="twitter:site" content="@xavier_seignard"/>
+  <!-- author -->
+  <meta property="twitter:creator" content="@xavier_seignard"/>
+  <!-- title -->
+  
+  <meta property="twitter:title" content="Quality analysis on Node.js projects with Mocha, Istanbul and Sonar"/>
+  
+  <!-- description -->
+  
+  <meta name="twitter:description" content="Hello,
+What about having a nice dashboard for the code quality of your project? Sonar is a well known open source tool to handle that.
+It handles a wide range of programming languages, from COBOL to Javascript. So let&amp;#39;s give a try to run Sonar on Node.js projects!
+Prerequisites
+
+I will cover the use of Sonar with Mocha and Istanbul, my tools of choice when it comes to js testing. But if you are able to generate xunit ans lcov reports from your test suite, chances the stuff I describe here will also work.
+You need to install Sonar : http://docs.codehaus.org/display/SONAR/Installation+and+Upgrade
+And the Sonar Javascript plugin : http://docs.codehaus.org/display/SONAR/JavaScript+Plugin
+You&amp;#39;ll also need Make : http://www.gnu.org/software/make/ which is the build tool I use for Node.js (we could use Grunt, but I still need good arguments to switch to it for node.js, if you have some let me know!)
+
+Testing with Mocha
+Mocha has a lot of built-in functionalities and is extensible. We&amp;#39;ll see this point will be really important. Because of its extensibility, you can output your tests results in various formats. If you don&amp;#39;t know Mocha, you should give it a try!
+So far, Sonar only handles the xunit format as input, so you need a Mocha reporter that can handle it. There is a bundled reporter in Mocha that achieve that, but you need to pipe the console output to the xunit file by yourself. 
+You could also use the following reporter plugin that does the work for you : https://github.com/peerigon/xunit-file
+So install it : npm install xunit-file --save-dev and then it&amp;#39;s just a matter of setting an environment variable during the build to tell where to output the file.
+So the xunit task in my Makefile look like this :
+xunit:
+	@# check if reports folder exists, if not create it
+	@test -d reports || mkdir reports
+	XUNIT_FILE=&quot;reports/TESTS-xunit.xml&quot; $(MOCHA) -R xunit-file $(TESTS)
+
+
+Where $(TESTS) is the list of tests. Since I use a convention to name my tests (they always end with .test.js) I can retrieve them easily.
+TESTS=$(shell find test/ -name &quot;*.test.js&quot;)
+
+
+And $(MOCHA) points to the mocha binary. I tend to install the tools I use inside the project rather than globally, it let me handle specific version of them for each project and gives the project some portability. But I don&amp;#39;t know if it&amp;#39;s a good practice or not. Feel free to drop a comment!
+MOCHA=node_modules/.bin/mocha
+
+
+You may have noticed the weird name I gave to the xunit output file : TESTS-xunit.xml, it&amp;#39;s really important it starts with TESTS! If not, you won&amp;#39;t be able to gather tests metrics in Sonar. 
+If you dig into the code of Sonar, here is why : https://github.com/SonarSource/sonar-java/blob/master/sonar-surefire-plugin/src/main/java/org/sonar/plugins/surefire/api/AbstractSurefireParser.java#L67
+You now have a test report ready to be consumed by Sonar (and Jenkins too if you want!).
+Code coverage with Istanbul
+Istanbul is the new cool kid when it comes to code coverage. And it is pretty simple to use! 
+instabul cover myNodeCommand will transparently add coverage info to the executed node command!
+Since mocha is a node command, everything is ok!
+You can just do the following
+_MOCHA=node_modules/.bin/_mocha
+coverage:
+	@# check if reports folder exists, if not create it
+	@test -d reports || mkdir reports
+	$(ISTANBUL) cover --report lcovonly --dir ./reports $(_MOCHA) -- -R spec $(TESTS)
+
+
+Just note the double dash to distinguish istanbul args from the mocha ones and the use of _mocha internal executable (see istanbul/issues/44).
+If you need to produce some other report formats (html, cobertura, etc.), you can check the report options.
+Sonar
+Sonar analysis can be performed in various ways (ant, maven, sonar-runner). Even if i do like maven (yes I do!), there&amp;#39;s no way I&amp;#39;ll put a pom.xml in a node.js project.
+We&amp;#39;ll use the sonar-runner. 
+Download it : http://docs.codehaus.org/display/SONAR/Installing+and+Configuring+Sonar+Runner. But, for the sake of portability I prefer to embed it in my project rather than installing it (again, I don&amp;#39;t know if it&amp;#39;s a good practice, but it&amp;#39;s mine).
+Then, you need to configure a file at the root of your project that will drive the sonar analysis : sonar-project.properties. This file is really simple, it just tells Sonar where to find the reports we produced before and provide some general info about the project (see http://docs.codehaus.org/display/SONAR/JavaScript+Plugin).
+sonar.projectKey=sonar-js
+sonar.projectName=sonar-js
+sonar.projectVersion=0.0.1
+ 
+sonar.sources=src
+sonar.tests=test
+sonar.language=js
+sonar.profile=node
+
+sonar.dynamicAnalysis=reuseReports
+
+sonar.javascript.jstest.reportsPath=reports
+sonar.javascript.lcov.reportPath=reports/coverage.lcov
+
+
+The file speaks by itself: project info, project directory structure and tell Sonar to reuse already generated reports and where they are.
+Please note that i use a custom profile which is a set of coding rules my code will be tested against. If you don&amp;#39;t have this profile on your Sonar instance, you should delete the sonar.profile=node. Your code will be then tested against the default js profile, which is not really adapted for node.js. I&amp;#39;ll come back on that.
+So after you have the xunit and lcov file, you can run Sonar.
+Here is my task in the Makefile:
+sonar:
+	@# add the sonar sonar-runner executable to the PATH and run it
+	PATH=&quot;$$PWD/tools/sonar-runner-2.2/bin:$$PATH&quot; sonar-runner
+
+
+That&amp;#39;s it!
+Please note that the actual configuration in sonar-project.properties assumes the Sonar server is running on http://localhost:9000.
+You can change that by specifying the right values in sonar-project.properties (see http://docs.codehaus.org/display/SONAR/Analysis+Parameters).
+You can now browse your Sonar dashboard and see this nice report:
+
+In a glance, you can see the wealth of your project : tests results, code coverage, coding rules compliance, complexity, etc...
+You can then drill down in any metrics, to see where are the coding rules violations, which line is covered or not, etc. Just read about Sonar to see how powerful it is. You can even see how the metrics evolve between two analysis!
+Here is an example of code coverage report:
+
+You can find a dummy project on github that covers the ideas of this blog post : https://github.com/xseignard/sonar-js
+Notes
+I use a custom quality profile in Sonar for Node.js (you can find it here: https://github.com/xseignard/sonar-js/blob/master/tools/node_js.xml).
+You can install it following the docs: http://docs.codehaus.org/display/SONAR/Quality+profiles#QualityProfiles-BackupingRestoringProfile
+My profile is far from ideal, and can be discussed.
+As I told you at the beginning, if you can generate xunit and lcov formats, you&amp;#39;re good! So you can easily apply this technique to Angular projects, because of the mighty Karma runner, see :
+
+the reporters section in http://karma-runner.github.io/0.8/config/configuration-file.html
+the coverage page http://karma-runner.github.io/0.8/config/coverage.html
+
+Have fun.">
+  
+  <!-- image -->
+  <meta property="twitter:image" content="https://dl.dropboxusercontent.com/u/17657227/Info/blog/dashboard.png"/>
+  <!-- TWITTER CARD -->
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="/dev/xavier" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37483328-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+<!-- 
+.......................................................................................... .........
+.......................................................................................... .........
+.................................mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm............. .........
+.........................mmmmmmmmmmmmmmmm..................................mmmmm.......... .........
+...................mmmmmmmmmmm..........mmmmm...............mm................mmm......... .........
+.................mmmm............................................mm.............mmm....... .........
+..............mmmm....m..mmmmmm............mmm..............mm......m............mmm...... .........
+............mmmm.................................................mm....m..........mmm..... .........
+...........mmm............mmmmm....................m..........mmm...m....m.........mmm.... .........
+..........mm...........m.........................m................mm...m....m.......mmm... .........
+..........mm.........m............m..................................m..m....m.......mm... .........
+..........mm........m..................................................m..m...........mm.. .........
+.........mm..........................................mmmmmmmmmmmmmm...................mmm. .........
+........mmm............mmmmmmmm...................mmmmm...mmmmmmmmmmmm.................mmm .........
+....mmmm...........mmmmmmmmmmmmmm.............mmmm......mmmmmmmm..mmm..................mmm .......
+...mmm...mmmmm.mmm.mmmmmmmmmmmmmmm...........mmm.....mmmmmmmmmmmmmmmmm....m....mmmmmmmm.mm mm.....
+..mm...m..................mmmmmmmmmmmmm.......mmmmmmmmm...........mm...m.................. mmm....
+.mm..m...mm.....................mmmm...........mmmmm......mmm..............mmmmmmmmmm..... ..mm...
+.mm.m..m...mmmmmm................mm.........................mmmm.......mmmmmm......mmmm... .m.mm..
+.mmm.....mmmmmmmmmm....m.........mm...........................mmmmmmmmmmm.....mm.....mmm.. .m..mmm
+.mmm.....m.......mmmmmmmm........mm...........................................mm......mm.. .m..mmm
+.mmm..m.......mm..mmmm........mmmm.........................................mmmmm.......mm. .m...mm
+.mm....m......mm...........mmmm................mmmmmmmm................mmmmm...mmmmmm..mm. .m...mm
+.mmmm...mm..mmmm..........mmmmm....................mm..............mmmmmm.....mmm.mmm.mmm. .m..mmm
+..mm.mm.....mmmm.......mm..mmmmm.........mmmmmmm...mm..........mmmmmmm........mm......mm.. ....mmm
+..mmm....m..mm.mmm...m........mmm..............m.mmm......mmmmmmmm.mm.......mmmm.....mm... m..mmm.
+...mmm.....mmmmmmmmm............mmmmmm...............mmmmmmmm......mm....mmmmmm.........mm ..mm...
+....mmm....mm.mm.mmmmmm...........mmm...........mmmmmmmm..........mmm.mmmmmmmm.......m.... .mmm...
+.....mm....mmmm..mm..mmmmmmmm........mmmmmmmmmmmmmm..mm..........mmmmmmm..mmm..........mmm mm.....
+.....mm....mmmm..mm....mmmmmmmmmmmmmmmmmmmm..........mm......mmmmmmmm....mmm............mm m......
+.....mm....mmmm..mm...mmm.......mm.......mm..........mmm.mmmmmmmmm.mm...mmm...........mmm. .......
+.....mm....mmmmmmmm...mm........mm.......mm.........mmmmmmmmmmm....mm..mmm...........mmm.. .......
+.....mm....mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.......mmmmmm............mm... .......
+.....mm....mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.mm...........mmm.............mmm... .......
+.....mm.....mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.......mm.........mmm..............mmm.... .......
+.....mm.....mm.mmmmmmmmmmmmmmmmmmmmmmmmmmm.mm..........mmm.....mmmm...............mmm..... .......
+.....mm......mm.mm..mm...mm.....mmm........mm...........mm...mmmm...............mmm....... .......
+.....mm......mmmmmm.mmm...mm.....mm........mm............mmmmmm................mmm........ .......
+.....mm.......mmmm...mmm..mmm....mm........mm.........mmmmmm.......m.....m...mmm.......... .......
+.....mm.........mmmmmmmmm..mm....mmm.......mm..mmmmmmmmm........m.....mm...mmmm........... .......
+.....mm..............mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.........mm....mm....mmmm ...............
+....mmm........m..........................................m.....mm....mmmmm.. ..............
+....mm..........m....................................mm......m.....mmmmm..... ..............
+....mm............m..............................mm......mm.....mmmmm........ ..............
+..mm.....mm........mmm...........mmmmmmmmmm......mm.......mmmmmm....... ............
+.mm.........m.........................mmm............mmmmm...... ........
+.mmm..........mmmmmmmmmmmmmmm.....................mmmmm...... ....
+.mmm..........................................mmmmm...... ..
+..mmm...................................mm.mmmmm....... 
+...mmmm............................mmmmmmmmmm........ 
+....mmmmm...................mmmmmmmmm.............. 
+.......mmmmmmmmmmmmmmmmmmmmmmmm....................
+-->
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">/dev/xavier</a></h1>
+  <h2><a href="/">show me some code</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+
+<article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-04-25T08:38:41.000Z"><a href="/2013/04/25/quality-analysis-on-node.js-projects-with-mocha-istanbul-and-sonar/">Apr 25 2013</a></time>
+      
+      
+  
+    <h1 class="title">Quality analysis on Node.js projects with Mocha, Istanbul and Sonar</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Hello,</p>
+<p>What about having a nice dashboard for the code quality of your project? <a href="http://www.sonarsource.org">Sonar</a> is a well known open source tool to handle that.</p>
+<p>It handles a wide range of programming languages, from COBOL to Javascript. So let&#39;s give a try to run Sonar on Node.js projects!</p>
+<h1>Prerequisites</h1>
+<ul>
+<li>I will cover the use of Sonar with <a href="http://visionmedia.github.io/mocha/">Mocha</a> and <a href="https://github.com/gotwarlost/istanbul">Istanbul</a>, my tools of choice when it comes to js testing. But if you are able to generate xunit ans lcov reports from your test suite, chances the stuff I describe here will also work.</li>
+<li>You need to install Sonar : <a href="http://docs.codehaus.org/display/SONAR/Installation+and+Upgrade">http://docs.codehaus.org/display/SONAR/Installation+and+Upgrade</a></li>
+<li>And the Sonar Javascript plugin : <a href="http://docs.codehaus.org/display/SONAR/JavaScript+Plugin">http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</a></li>
+<li>You&#39;ll also need Make : <a href="http://www.gnu.org/software/make/">http://www.gnu.org/software/make/</a> which is the build tool I use for Node.js (we could use <a href="http://gruntjs.com/">Grunt</a>, but I still need good arguments to switch to it for node.js, if you have some let me know!)</li>
+</ul>
+<h1>Testing with Mocha</h1>
+<p>Mocha has a lot of built-in functionalities and is extensible. We&#39;ll see this point will be really important. Because of its extensibility, you can output your tests results in various formats. If you don&#39;t know Mocha, you should give it a try!</p>
+<p>So far, Sonar only handles the xunit format as input, so you need a Mocha reporter that can handle it. There is a bundled reporter in Mocha that achieve that, but you need to pipe the console output to the xunit file by yourself. </p>
+<p>You could also use the following reporter plugin that does the work for you : <a href="https://github.com/peerigon/xunit-file">https://github.com/peerigon/xunit-file</a></p>
+<p>So install it : <code>npm install xunit-file --save-dev</code> and then it&#39;s just a matter of setting an environment variable during the build to tell where to output the file.</p>
+<p>So the xunit task in my <code>Makefile</code> look like this :</p>
+<pre><code>xunit:
+	<span class="variable">@#</span> check <span class="keyword">if</span> reports folder <span class="keyword">exists</span>, <span class="keyword">if</span> <span class="keyword">not</span> create it
+	<span class="variable">@test</span> -d reports || <span class="keyword">mkdir</span> reports
+	XUNIT_FILE=<span class="string">"reports/TESTS-xunit.xml"</span> <span class="variable">$(</span>MOCHA) -R xunit-file <span class="variable">$(</span>TESTS)
+</code></pre>
+
+<p>Where <code>$(TESTS)</code> is the list of tests. Since I use a convention to name my tests (they always end with <code>.test.js</code>) I can retrieve them easily.</p>
+<pre><code><span class="setting">TESTS=<span class="value">$(shell find test/ -name <span class="string">"*.test.js"</span>)</span></span>
+</code></pre>
+
+<p>And <code>$(MOCHA)</code> points to the mocha binary. I tend to install the tools I use inside the project rather than globally, it let me handle specific version of them for each project and gives the project some portability. But I don&#39;t know if it&#39;s a good practice or not. Feel free to drop a comment!</p>
+<pre><code><span class="setting">MOCHA=<span class="value">node_modules/.bin/mocha</span></span>
+</code></pre>
+
+<p>You may have noticed the weird name I gave to the xunit output file : <code>TESTS-xunit.xml</code>, it&#39;s really important it starts with <code>TESTS</code>! If not, you won&#39;t be able to gather tests metrics in Sonar. </p>
+<p>If you dig into the code of Sonar, here is why : <a href="https://github.com/SonarSource/sonar-java/blob/master/sonar-surefire-plugin/src/main/java/org/sonar/plugins/surefire/api/AbstractSurefireParser.java#L67">https://github.com/SonarSource/sonar-java/blob/master/sonar-surefire-plugin/src/main/java/org/sonar/plugins/surefire/api/AbstractSurefireParser.java#L67</a></p>
+<p>You now have a test report ready to be consumed by Sonar (and Jenkins too if you want!).</p>
+<h1>Code coverage with Istanbul</h1>
+<p>Istanbul is the new cool kid when it comes to code coverage. And it is pretty simple to use! </p>
+<p><code>instabul cover myNodeCommand</code> will transparently add coverage info to the executed node command!</p>
+<p>Since <code>mocha</code> is a node command, everything is ok!</p>
+<p>You can just do the following</p>
+<pre><code><span class="comment">_MOCHA=node_modules/</span>.<span class="comment">bin/_mocha</span>
+<span class="comment">coverage:</span>
+<span class="comment">	@#</span> <span class="comment">check</span> <span class="comment">if</span> <span class="comment">reports</span> <span class="comment">folder</span> <span class="comment">exists</span>, <span class="comment">if</span> <span class="comment">not</span> <span class="comment">create</span> <span class="comment">it</span>
+<span class="comment">	@test</span> <span class="literal">-</span><span class="comment">d</span> <span class="comment">reports</span> <span class="comment">||</span> <span class="comment">mkdir</span> <span class="comment">reports</span>
+<span class="comment">	$(ISTANBUL)</span> <span class="comment">cover</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">report</span> <span class="comment">lcovonly</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">dir</span> <span class="string">.</span><span class="comment">/reports</span> <span class="comment">$(_MOCHA)</span> <span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="comment">R</span> <span class="comment">spec</span> <span class="comment">$(TESTS)
+</code></pre>
+
+<p>Just note the double dash to distinguish <code>istanbul</code> args from the <code>mocha</code> ones and the use of <code>_mocha</code> internal executable (see <a href="https://github.com/gotwarlost/istanbul/issues/44">istanbul/issues/44</a>).</p>
+<p>If you need to produce some other report formats (html, cobertura, etc.), you can check the <a href="https://github.com/gotwarlost/istanbul#the-report-command">report options</a>.</p>
+<h1>Sonar</h1>
+<p>Sonar analysis can be performed in various ways (ant, maven, sonar-runner). Even if i do like maven (yes I do!), there&#39;s no way I&#39;ll put a <code>pom.xml</code> in a node.js project.</p>
+<p>We&#39;ll use the <a href="http://docs.codehaus.org/display/SONAR/Analyzing+with+Sonar+Runner">sonar-runner</a>. </p>
+<p>Download it : <a href="http://docs.codehaus.org/display/SONAR/Installing+and+Configuring+Sonar+Runner">http://docs.codehaus.org/display/SONAR/Installing+and+Configuring+Sonar+Runner</a>. But, for the sake of portability I prefer to embed it in my project rather than installing it (again, I don&#39;t know if it&#39;s a good practice, but it&#39;s mine).</p>
+<p>Then, you need to configure a file at the root of your project that will drive the sonar analysis : <code>sonar-project.properties</code>. This file is really simple, it just tells Sonar where to find the reports we produced before and provide some general info about the project (see <a href="http://docs.codehaus.org/display/SONAR/JavaScript+Plugin">http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</a>).</p>
+<pre><code>sonar<span class="variable">.projectKey</span>=sonar-js
+sonar<span class="variable">.projectName</span>=sonar-js
+sonar<span class="variable">.projectVersion</span>=<span class="number">0.0</span><span class="number">.1</span>
+ 
+sonar<span class="variable">.sources</span>=src
+sonar<span class="variable">.tests</span>=test
+sonar<span class="variable">.language</span>=js
+sonar<span class="variable">.profile</span>=node
+
+sonar<span class="variable">.dynamicAnalysis</span>=reuseReports
+
+sonar<span class="variable">.javascript</span><span class="variable">.jstest</span><span class="variable">.reportsPath</span>=reports
+sonar<span class="variable">.javascript</span><span class="variable">.lcov</span><span class="variable">.reportPath</span>=reports/coverage<span class="variable">.lcov</span>
+</code></pre>
+
+<p>The file speaks by itself: project info, project directory structure and tell Sonar to reuse already generated reports and where they are.</p>
+<p>Please note that i use a custom profile which is a set of coding rules my code will be tested against. If you don&#39;t have this profile on your Sonar instance, you should delete the <code>sonar.profile=node</code>. Your code will be then tested against the default js profile, which is not really adapted for node.js. I&#39;ll come back on that.</p>
+<p>So after you have the xunit and lcov file, you can run Sonar.</p>
+<p>Here is my task in the <code>Makefile</code>:</p>
+<pre><code>sonar:
+	<span class="variable">@#</span> add the sonar sonar-runner executable to the PATH <span class="keyword">and</span> run it
+	PATH=<span class="string">"<span class="variable">$$</span>PWD/tools/sonar-runner-2.2/bin:<span class="variable">$$</span>PATH"</span> sonar-runner
+</code></pre>
+
+<p>That&#39;s it!</p>
+<p>Please note that the actual configuration in sonar-project.properties assumes the Sonar server is running on <a href="http://localhost:9000">http://localhost:9000</a>.</p>
+<p>You can change that by specifying the right values in sonar-project.properties (see <a href="http://docs.codehaus.org/display/SONAR/Analysis+Parameters">http://docs.codehaus.org/display/SONAR/Analysis+Parameters</a>).</p>
+<p>You can now browse your Sonar dashboard and see this nice report:</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/dashboard.png" alt=""></p>
+<p>In a glance, you can see the wealth of your project : tests results, code coverage, coding rules compliance, complexity, etc...</p>
+<p>You can then drill down in any metrics, to see where are the coding rules violations, which line is covered or not, etc. Just read about Sonar to see how powerful it is. You can even see how the metrics evolve between two analysis!</p>
+<p>Here is an example of code coverage report:</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/coverage-dd.png" alt=""></p>
+<p>You can find a dummy project on github that covers the ideas of this blog post : <a href="https://github.com/xseignard/sonar-js">https://github.com/xseignard/sonar-js</a></p>
+<h1>Notes</h1>
+<p>I use a custom quality profile in Sonar for Node.js (you can find it here: <a href="https://github.com/xseignard/sonar-js/blob/master/tools/node_js.xml">https://github.com/xseignard/sonar-js/blob/master/tools/node_js.xml</a>).</p>
+<p>You can install it following the docs: <a href="http://docs.codehaus.org/display/SONAR/Quality+profiles#QualityProfiles-BackupingRestoringProfile">http://docs.codehaus.org/display/SONAR/Quality+profiles#QualityProfiles-BackupingRestoringProfile</a></p>
+<p>My profile is far from ideal, and can be discussed.</p>
+<p>As I told you at the beginning, if you can generate xunit and lcov formats, you&#39;re good! So you can easily apply this technique to Angular projects, because of the mighty <a href="http://karma-runner.github.io/">Karma runner</a>, see :</p>
+<ul>
+<li>the reporters section in <a href="http://karma-runner.github.io/0.8/config/configuration-file.html">http://karma-runner.github.io/0.8/config/configuration-file.html</a></li>
+<li>the coverage page <a href="http://karma-runner.github.io/0.8/config/coverage.html">http://karma-runner.github.io/0.8/config/coverage.html</a></li>
+</ul>
+<p>Have fun.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/node/">node</a>, <a href="/tags/mocha/">mocha</a>, <a href="/tags/istanbul/">istanbul</a>, <a href="/tags/sonar/">sonar</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="twitter-share-button addthis_button_tweet" data-via="xavier_seignard"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">Comments</h1>
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</div></div>
+    <aside id="sidebar" class="alignright">
+<div class="search">
+  <form action="http://google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:xseignard.github.io">
+  </form>
+</div>
+
+
+
+
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/github/">github</a><small>1</small></li>
+  
+    <li><a href="/tags/node/">node</a><small>4</small></li>
+  
+    <li><a href="/tags/travis/">travis</a><small>1</small></li>
+  
+    <li><a href="/tags/heroku/">heroku</a><small>1</small></li>
+  
+    <li><a href="/tags/js/">js</a><small>1</small></li>
+  
+    <li><a href="/tags/bower/">bower</a><small>1</small></li>
+  
+    <li><a href="/tags/processing/">processing</a><small>1</small></li>
+  
+    <li><a href="/tags/java/">java</a><small>1</small></li>
+  
+    <li><a href="/tags/raspberry/">raspberry</a><small>2</small></li>
+  
+    <li><a href="/tags/mocha/">mocha</a><small>1</small></li>
+  
+    <li><a href="/tags/istanbul/">istanbul</a><small>1</small></li>
+  
+    <li><a href="/tags/sonar/">sonar</a><small>1</small></li>
+  
+    <li><a href="/tags/DIY/">DIY</a><small>2</small></li>
+  
+    <li><a href="/tags/leapmotion/">leapmotion</a><small>1</small></li>
+  
+    <li><a href="/tags/diy/">diy</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+
+<div class="widget twitter">
+  <h3 class="title">Tweets</h3>
+  <ul id="tweets"></ul>
+</div>
+
+<script type="text/javascript">
+var twitter_conf = ['xavier_seignard', '364346162255368193'];
+</script>
+
+<script src="/js/twitter.js"></script>
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 @xavier_seignard
+  
+</div>
+<div class="alignright">
+  Proudly powered by <a href="http://zespia.tw/hexo/">Hexo</a><br/>
+  Gently hosted at <a href="http://github.com">Github</a><br/>
+  Nice background from <a href="http://subtlepatterns.com/">Subtle Patterns</a>
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+var disqus_shortname = 'xseignard';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

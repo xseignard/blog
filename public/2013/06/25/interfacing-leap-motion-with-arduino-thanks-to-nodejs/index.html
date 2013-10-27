@@ -1,0 +1,372 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Interfacing Leap Motion with Arduino thanks to Node.js | /dev/xavier</title>
+  <meta name="author" content="@xavier_seignard">
+  
+  <meta name="description" content="show me some code!">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Interfacing Leap Motion with Arduino thanks to Node.js"/>
+  <meta property="og:site_name" content="/dev/xavier"/>
+
+  <!-- TWITTER CARD -->
+  <!-- card type -->
+  
+  <meta property="twitter:card" content="summary"/>
+  
+  <!-- site -->
+  <meta property="twitter:site" content="@xavier_seignard"/>
+  <!-- author -->
+  <meta property="twitter:creator" content="@xavier_seignard"/>
+  <!-- title -->
+  
+  <meta property="twitter:title" content="Interfacing Leap Motion with Arduino thanks to Node.js"/>
+  
+  <!-- description -->
+  
+  <meta name="twitter:description" content="What about controlling physical things by waving your hands?
+Thanks to the Leap Motion, Arduino and a bit of Node.js magic it&amp;#39;s pretty simple!
+Let&amp;#39;s check that!
+Leap Motion
+There is a nice fea">
+  
+  <!-- image -->
+  
+  <!-- TWITTER CARD -->
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="/dev/xavier" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37483328-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+<!-- 
+.......................................................................................... .........
+.......................................................................................... .........
+.................................mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm............. .........
+.........................mmmmmmmmmmmmmmmm..................................mmmmm.......... .........
+...................mmmmmmmmmmm..........mmmmm...............mm................mmm......... .........
+.................mmmm............................................mm.............mmm....... .........
+..............mmmm....m..mmmmmm............mmm..............mm......m............mmm...... .........
+............mmmm.................................................mm....m..........mmm..... .........
+...........mmm............mmmmm....................m..........mmm...m....m.........mmm.... .........
+..........mm...........m.........................m................mm...m....m.......mmm... .........
+..........mm.........m............m..................................m..m....m.......mm... .........
+..........mm........m..................................................m..m...........mm.. .........
+.........mm..........................................mmmmmmmmmmmmmm...................mmm. .........
+........mmm............mmmmmmmm...................mmmmm...mmmmmmmmmmmm.................mmm .........
+....mmmm...........mmmmmmmmmmmmmm.............mmmm......mmmmmmmm..mmm..................mmm .......
+...mmm...mmmmm.mmm.mmmmmmmmmmmmmmm...........mmm.....mmmmmmmmmmmmmmmmm....m....mmmmmmmm.mm mm.....
+..mm...m..................mmmmmmmmmmmmm.......mmmmmmmmm...........mm...m.................. mmm....
+.mm..m...mm.....................mmmm...........mmmmm......mmm..............mmmmmmmmmm..... ..mm...
+.mm.m..m...mmmmmm................mm.........................mmmm.......mmmmmm......mmmm... .m.mm..
+.mmm.....mmmmmmmmmm....m.........mm...........................mmmmmmmmmmm.....mm.....mmm.. .m..mmm
+.mmm.....m.......mmmmmmmm........mm...........................................mm......mm.. .m..mmm
+.mmm..m.......mm..mmmm........mmmm.........................................mmmmm.......mm. .m...mm
+.mm....m......mm...........mmmm................mmmmmmmm................mmmmm...mmmmmm..mm. .m...mm
+.mmmm...mm..mmmm..........mmmmm....................mm..............mmmmmm.....mmm.mmm.mmm. .m..mmm
+..mm.mm.....mmmm.......mm..mmmmm.........mmmmmmm...mm..........mmmmmmm........mm......mm.. ....mmm
+..mmm....m..mm.mmm...m........mmm..............m.mmm......mmmmmmmm.mm.......mmmm.....mm... m..mmm.
+...mmm.....mmmmmmmmm............mmmmmm...............mmmmmmmm......mm....mmmmmm.........mm ..mm...
+....mmm....mm.mm.mmmmmm...........mmm...........mmmmmmmm..........mmm.mmmmmmmm.......m.... .mmm...
+.....mm....mmmm..mm..mmmmmmmm........mmmmmmmmmmmmmm..mm..........mmmmmmm..mmm..........mmm mm.....
+.....mm....mmmm..mm....mmmmmmmmmmmmmmmmmmmm..........mm......mmmmmmmm....mmm............mm m......
+.....mm....mmmm..mm...mmm.......mm.......mm..........mmm.mmmmmmmmm.mm...mmm...........mmm. .......
+.....mm....mmmmmmmm...mm........mm.......mm.........mmmmmmmmmmm....mm..mmm...........mmm.. .......
+.....mm....mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.......mmmmmm............mm... .......
+.....mm....mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.mm...........mmm.............mmm... .......
+.....mm.....mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.......mm.........mmm..............mmm.... .......
+.....mm.....mm.mmmmmmmmmmmmmmmmmmmmmmmmmmm.mm..........mmm.....mmmm...............mmm..... .......
+.....mm......mm.mm..mm...mm.....mmm........mm...........mm...mmmm...............mmm....... .......
+.....mm......mmmmmm.mmm...mm.....mm........mm............mmmmmm................mmm........ .......
+.....mm.......mmmm...mmm..mmm....mm........mm.........mmmmmm.......m.....m...mmm.......... .......
+.....mm.........mmmmmmmmm..mm....mmm.......mm..mmmmmmmmm........m.....mm...mmmm........... .......
+.....mm..............mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.........mm....mm....mmmm ...............
+....mmm........m..........................................m.....mm....mmmmm.. ..............
+....mm..........m....................................mm......m.....mmmmm..... ..............
+....mm............m..............................mm......mm.....mmmmm........ ..............
+..mm.....mm........mmm...........mmmmmmmmmm......mm.......mmmmmm....... ............
+.mm.........m.........................mmm............mmmmm...... ........
+.mmm..........mmmmmmmmmmmmmmm.....................mmmmm...... ....
+.mmm..........................................mmmmm...... ..
+..mmm...................................mm.mmmmm....... 
+...mmmm............................mmmmmmmmmm........ 
+....mmmmm...................mmmmmmmmm.............. 
+.......mmmmmmmmmmmmmmmmmmmmmmmm....................
+-->
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">/dev/xavier</a></h1>
+  <h2><a href="/">show me some code</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+
+<article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-06-25T13:49:38.000Z"><a href="/2013/06/25/interfacing-leap-motion-with-arduino-thanks-to-nodejs/">Jun 25 2013</a></time>
+      
+      
+  
+    <h1 class="title">Interfacing Leap Motion with Arduino thanks to Node.js</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>What about controlling physical things by waving your hands?</p>
+<p>Thanks to the Leap Motion, Arduino and a bit of Node.js magic it&#39;s pretty simple!</p>
+<p>Let&#39;s check that!</p>
+<h1>Leap Motion</h1>
+<p>There is a nice feature in the SDK of the Leap Motion: the websocket server.</p>
+<p>When activated, the Leap Motion software streams the tracking data over it. You then just need to connect your software to it and you&#39;re ready to analyse these data.</p>
+<p>Go to the Leap Motion controller settings, and then in the WebSocket tab and activate it.</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/leapWebSocket.png" alt=""></p>
+<p>The websocket server is now accessible at the following adress: <code>ws://127.0.0.1:6437</code></p>
+<h1>Connect your Node.js application to the websocket server</h1>
+<p>Node.js is amazing, and connecting your app to the Leap Motion websocket server is just a matter of 2 lines.</p>
+<p>In your project, install the <code>ws</code> library with <code>npm install ws --save</code></p>
+<p>And then you can check everything is working with this simple code:</p>
+<figure class="highlight"><pre><span class="title">var</span> webSocket = require('ws'),
+    ws = new webSocket('ws://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6437</span>');
+
+<span class="title">ws</span>.on('message', function(<span class="typedef"><span class="keyword">data</span>, flags) <span class="container">{
+    <span class="title">console</span>.<span class="title">log</span>(<span class="title">data</span>);
+}</span>);</span>
+</pre></figure>
+
+<p>When running this script, it should log the data coming from the websocket. If so, you are ok!</p>
+<p>It is then just a matter of parsing the data and take what you need in it!</p>
+<p>Here you can find an example of a frame: <a href="https://gist.github.com/xseignard/5858797">frame.json</a></p>
+<h1>Arduino</h1>
+<p>So you have now all the data you need from the Leap Motion, how can you pass it to the Arduino? Node.js is again the answer!</p>
+<p>Thanks to the marvelous <a href="https://github.com/rwldrn/johnny-five">johnny-five</a> library, you can talk to the Arduino directly from Node.js! To achieve that, you&#39;ll just need to upload the Standard Firmata on your Arduino.</p>
+<p>Open the Arduino IDE, open the <code>File&gt;Examples&gt;Firmata&gt;StandardFirmata</code> and upload it to your Arduino.</p>
+<p>You can now use <code>johnny-five</code> to communicate with the Arduino.</p>
+<p>Install it: <code>npm install johnny-five --save</code>. Below is a snippet to connect your board and make the led that is tied to the pin 13 blink.</p>
+<figure class="highlight"><pre><span class="reserved">var</span> five = require(<span class="string">'johnny-five'</span>),
+    board = <span class="keyword">new</span> five.Board(),
+    led;
+
+board.<span class="literal">on</span>(<span class="string">'ready'</span>, <span class="reserved">function</span>() {
+    led = <span class="keyword">new</span> five.Led(<span class="number">13</span>);
+    led.strobe();
+});
+</pre></figure>
+
+<p>Easy isn&#39;t it?</p>
+<h1>Plug all this together</h1>
+<p>It&#39;s now really easy to plug all this together. Let&#39;s try to make a simple example that turns on the led when the Leap Motion sees 2 hands, and turns it off when not. You should take a look to the sample frame once more: <a href="https://gist.github.com/xseignard/5858797">frame.json</a>. </p>
+<figure class="highlight"><pre><span class="title">var</span> webSocket = require('ws'),
+    ws = new webSocket('ws://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6437</span>'),
+    five = require('johnny-five'),
+    board = new five.<span class="type">Board</span>(),
+    led, frame;
+
+<span class="title">board</span>.on('ready', function() {
+    led = new five.<span class="type">Led</span>(<span class="number">13</span>);    
+    ws.on('message', function(<span class="typedef"><span class="keyword">data</span>, flags) <span class="container">{
+        <span class="title">frame</span> = <span class="type">JSON</span>.<span class="title">parse</span>(<span class="title">data</span>); 
+        <span class="title">if</span> (<span class="title">frame</span>.<span class="title">hands</span> && <span class="title">frame</span>.<span class="title">hands</span>.<span class="title">length</span> &gt; 1) {
+            <span class="title">led</span>.<span class="title">on</span>();
+        }</span></span>
+        <span class="keyword">else</span> {
+            led.off();
+        }
+    });
+});
+</pre></figure>
+
+<p>That&#39;s it! (I hope so, it&#39;s not tested :))</p>
+<h1>Going further</h1>
+<p>Here is the demo I made few weeks ago:</p>
+<iframe src="http://player.vimeo.com/video/68530396" width="700" height="393" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+
+<p>You can find the code on github: <a href="https://github.com/xseignard/leapLamp">leapLamp</a>, feel free to use it and/or ask for some help.</p>
+<p>Happy coding.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/DIY/">DIY</a>, <a href="/tags/node/">node</a>, <a href="/tags/leapmotion/">leapmotion</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="twitter-share-button addthis_button_tweet" data-via="xavier_seignard"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">Comments</h1>
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+</div></div>
+    <aside id="sidebar" class="alignright">
+<div class="search">
+  <form action="http://google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:xseignard.github.io">
+  </form>
+</div>
+
+
+
+
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/github/">github</a><small>1</small></li>
+  
+    <li><a href="/tags/node/">node</a><small>4</small></li>
+  
+    <li><a href="/tags/travis/">travis</a><small>1</small></li>
+  
+    <li><a href="/tags/heroku/">heroku</a><small>1</small></li>
+  
+    <li><a href="/tags/js/">js</a><small>1</small></li>
+  
+    <li><a href="/tags/bower/">bower</a><small>1</small></li>
+  
+    <li><a href="/tags/processing/">processing</a><small>1</small></li>
+  
+    <li><a href="/tags/java/">java</a><small>1</small></li>
+  
+    <li><a href="/tags/raspberry/">raspberry</a><small>2</small></li>
+  
+    <li><a href="/tags/mocha/">mocha</a><small>1</small></li>
+  
+    <li><a href="/tags/istanbul/">istanbul</a><small>1</small></li>
+  
+    <li><a href="/tags/sonar/">sonar</a><small>1</small></li>
+  
+    <li><a href="/tags/DIY/">DIY</a><small>2</small></li>
+  
+    <li><a href="/tags/leapmotion/">leapmotion</a><small>1</small></li>
+  
+    <li><a href="/tags/diy/">diy</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+
+<div class="widget twitter">
+  <h3 class="title">Tweets</h3>
+  <ul id="tweets"></ul>
+</div>
+
+<script type="text/javascript">
+var twitter_conf = ['xavier_seignard', '364346162255368193'];
+</script>
+
+<script src="/js/twitter.js"></script>
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 @xavier_seignard
+  
+</div>
+<div class="alignright">
+  Proudly powered by <a href="http://zespia.tw/hexo/">Hexo</a><br/>
+  Gently hosted at <a href="http://github.com">Github</a><br/>
+  Nice background from <a href="http://subtlepatterns.com/">Subtle Patterns</a>
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+var disqus_shortname = 'xseignard';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

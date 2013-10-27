@@ -1,0 +1,225 @@
+
+
+
+<h2 class="archive-title tag">DIY</h2>
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-06-25T13:49:38.000Z"><a href="/2013/06/25/interfacing-leap-motion-with-arduino-thanks-to-nodejs/">Jun 25 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/06/25/interfacing-leap-motion-with-arduino-thanks-to-nodejs/">Interfacing Leap Motion with Arduino thanks to Node.js</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>What about controlling physical things by waving your hands?</p>
+<p>Thanks to the Leap Motion, Arduino and a bit of Node.js magic it&#39;s pretty simple!</p>
+<p>Let&#39;s check that!</p>
+<h1>Leap Motion</h1>
+<p>There is a nice feature in the SDK of the Leap Motion: the websocket server.</p>
+<p>When activated, the Leap Motion software streams the tracking data over it. You then just need to connect your software to it and you&#39;re ready to analyse these data.</p>
+<p>Go to the Leap Motion controller settings, and then in the WebSocket tab and activate it.</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/leapWebSocket.png" alt=""></p>
+<p>The websocket server is now accessible at the following adress: <code>ws://127.0.0.1:6437</code></p>
+<h1>Connect your Node.js application to the websocket server</h1>
+<p>Node.js is amazing, and connecting your app to the Leap Motion websocket server is just a matter of 2 lines.</p>
+<p>In your project, install the <code>ws</code> library with <code>npm install ws --save</code></p>
+<p>And then you can check everything is working with this simple code:</p>
+<figure class="highlight"><pre><span class="title">var</span> webSocket = require('ws'),
+    ws = new webSocket('ws://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6437</span>');
+
+<span class="title">ws</span>.on('message', function(<span class="typedef"><span class="keyword">data</span>, flags) <span class="container">{
+    <span class="title">console</span>.<span class="title">log</span>(<span class="title">data</span>);
+}</span>);</span>
+</pre></figure>
+
+<p>When running this script, it should log the data coming from the websocket. If so, you are ok!</p>
+<p>It is then just a matter of parsing the data and take what you need in it!</p>
+<p>Here you can find an example of a frame: <a href="https://gist.github.com/xseignard/5858797">frame.json</a></p>
+<h1>Arduino</h1>
+<p>So you have now all the data you need from the Leap Motion, how can you pass it to the Arduino? Node.js is again the answer!</p>
+<p>Thanks to the marvelous <a href="https://github.com/rwldrn/johnny-five">johnny-five</a> library, you can talk to the Arduino directly from Node.js! To achieve that, you&#39;ll just need to upload the Standard Firmata on your Arduino.</p>
+<p>Open the Arduino IDE, open the <code>File&gt;Examples&gt;Firmata&gt;StandardFirmata</code> and upload it to your Arduino.</p>
+<p>You can now use <code>johnny-five</code> to communicate with the Arduino.</p>
+<p>Install it: <code>npm install johnny-five --save</code>. Below is a snippet to connect your board and make the led that is tied to the pin 13 blink.</p>
+<figure class="highlight"><pre><span class="reserved">var</span> five = require(<span class="string">'johnny-five'</span>),
+    board = <span class="keyword">new</span> five.Board(),
+    led;
+
+board.<span class="literal">on</span>(<span class="string">'ready'</span>, <span class="reserved">function</span>() {
+    led = <span class="keyword">new</span> five.Led(<span class="number">13</span>);
+    led.strobe();
+});
+</pre></figure>
+
+<p>Easy isn&#39;t it?</p>
+<h1>Plug all this together</h1>
+<p>It&#39;s now really easy to plug all this together. Let&#39;s try to make a simple example that turns on the led when the Leap Motion sees 2 hands, and turns it off when not. You should take a look to the sample frame once more: <a href="https://gist.github.com/xseignard/5858797">frame.json</a>. </p>
+<figure class="highlight"><pre><span class="title">var</span> webSocket = require('ws'),
+    ws = new webSocket('ws://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6437</span>'),
+    five = require('johnny-five'),
+    board = new five.<span class="type">Board</span>(),
+    led, frame;
+
+<span class="title">board</span>.on('ready', function() {
+    led = new five.<span class="type">Led</span>(<span class="number">13</span>);    
+    ws.on('message', function(<span class="typedef"><span class="keyword">data</span>, flags) <span class="container">{
+        <span class="title">frame</span> = <span class="type">JSON</span>.<span class="title">parse</span>(<span class="title">data</span>); 
+        <span class="title">if</span> (<span class="title">frame</span>.<span class="title">hands</span> && <span class="title">frame</span>.<span class="title">hands</span>.<span class="title">length</span> &gt; 1) {
+            <span class="title">led</span>.<span class="title">on</span>();
+        }</span></span>
+        <span class="keyword">else</span> {
+            led.off();
+        }
+    });
+});
+</pre></figure>
+
+<p>That&#39;s it! (I hope so, it&#39;s not tested :))</p>
+<h1>Going further</h1>
+<p>Here is the demo I made few weeks ago:</p>
+<iframe src="http://player.vimeo.com/video/68530396" width="700" height="393" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+
+<p>You can find the code on github: <a href="https://github.com/xseignard/leapLamp">leapLamp</a>, feel free to use it and/or ask for some help.</p>
+<p>Happy coding.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-05-20T11:07:21.000Z"><a href="/2013/05/20/plug-your-minitel-on-your-raspberry-pi/">May 20 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/05/20/plug-your-minitel-on-your-raspberry-pi/">Plug your Minitel on your Raspberry Pi</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Hi,</p>
+<p>So what is a Minitel? According to Wikipedia :</p>
+<blockquote>
+<p>The Minitel was a Videotex online service accessible through telephone lines, and is considered one of the world&#39;s most successful pre-World Wide Web online services.<a href="http://en.wikipedia.org/wiki/Minitel">¹</a> </p>
+</blockquote>
+<p>This service was accessible through particular devices. They had a screen, a keyboard and a modem.</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/minitel.jpg" alt=""></p>
+<p>A screen and a keyboard are just what we need for our Pi, so let&#39;s plug them together!</p>
+<h1>Minitel and serial communication</h1>
+<p>The Minitel have a serial port. It&#39;s goal is to communicate to peripherals such as a printer or whatever.</p>
+<p>The socket is a classic 180° DIN with 5 pins :</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/dinMinitel.JPG" alt=""></p>
+<p>Here is the description of the pins:</p>
+<ul>
+<li>1: Rx: data reception </li>
+<li>2: Ground</li>
+<li>3: Tx: data transmission</li>
+<li>4: Ready to work signal</li>
+<li>5: 8.5v - 1A power supply</li>
+</ul>
+<p>So pins 1,2 and 3 are what we need to communicate through serial with the Pi.</p>
+<p>Please note that not all Minitels have this kind of sockets. To find a compatible one, the Minitel must have this socket AND two special keys on the keyboard <code>Fnct</code> and <code>Ctrl</code>. They are usualy called <em>Minitel 1B</em>.</p>
+<h1>TTL levels and the Pi</h1>
+<p>The UART on the Pi works with 0v and 3.3v. But a lot of old stuff use 0v and 5v. This is the case of the Minitel, so we need to adapt the voltage levels :</p>
+<ul>
+<li>Lower the Tx level of the Minitel from 5v to 3.3v</li>
+<li>Raise the Tx level of the Pi from 3.3v to 5v</li>
+</ul>
+<p>To achieve that, I used the following schema based on the recommendation of <a href="https://twitter.com/lhuet35">@lhuet35</a> (thanks!). You can check its Devoxx presentation (in french) here : <a href="http://parleys.com/play/51599a1ee4b0ffdd7e058b6b/chapter0/about">3615 Cloud</a></p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/minitel.png" alt=""></p>
+<p>Be careful, the unused pin between the 5v and the GND of the Pi is not depicted on this schema!!</p>
+<p>Here is the stuff mounted on a breadboard :</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/minitelProto.JPG" alt=""></p>
+<h1>Configure a tty on the UART</h1>
+<p>You then need to configure a tty that will communicate through the UART.</p>
+<p>The following configuration is based on a Raspbian, but it should be the same on other distros.</p>
+<ul>
+<li>You may need to install <code>getty</code> :<ul>
+<li><code>sudo apt-get install getty</code></li>
+</ul>
+</li>
+<li>Backup the <code>/boot/cmdline.txt</code> file just in case :)<ul>
+<li><code>sudo cp /boot/cmdline.txt /boot/cmdline.bak.txt</code></li>
+</ul>
+</li>
+<li>Edit the file: <ul>
+<li><code>sudo vim /boot/cmdline.txt</code> </li>
+<li>and remove everything related to the serial port <code>ttyAMA0</code>, i.e. : <code>console=ttyAMA0,115200 kgdboc=ttyAMA0,115200</code></li>
+</ul>
+</li>
+<li>Add a <code>getty</code> conf on <code>/etc/inittab</code> :<ul>
+<li><code>7:2345:respawn:/sbin/getty ttyAMA0 4800v23</code></li>
+<li>also check there is no other <code>getty</code> conf for this tty on the file</li>
+</ul>
+</li>
+<li>Then you need to create a <code>gettydefs</code> file (or edit it)<ul>
+<li><code>sudo vim /etc/gettydefs</code></li>
+<li>and add the following <code>4800v23# B4800 CS7 PARENB -PARODD GLOBAL # B4800 ISTRIP CS7 PARENB -PARODD GLOBAL BRKINT IGNPAR ICRNL IXON IXANY OPOST ONLCR CREAD HUPCLISIG ICANON ECHO ECHOE ECHOK #@S login: #4800v23</code> on one line!</li>
+<li>this will configure the tty on UART</li>
+</ul>
+</li>
+</ul>
+<p>You can now plug the Pi to the Minitel and reboot the Pi.</p>
+<h1>Configure the Minitel</h1>
+<p>You need to switch the Minitel mode to be able to communicate through the serial port.</p>
+<ul>
+<li>Power on the Minitel</li>
+<li>Press <code>Fnct+T</code> then <code>A</code> : the Minitel will switch to the serial mode</li>
+<li>Press <code>Fnct+P</code> then <code>4</code> : the Minitel now communicate through serial at 4800bps (the max speed)</li>
+<li>Press <code>Fnct+T</code> then <code>E</code> : to deactivate the local echo</li>
+<li>Press <code>↵</code> and you should now see the login prompt (maybe with some white squares), put your login and you&#39;re done!</li>
+</ul>
+<p>Be aware that you&#39;ll need to do this Minitel configuration everytime you power it up.</p>
+<p>Here is a pic of my Minitel :</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/piMinitel.JPG" alt=""></p>
+<p>Happy coding!</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/05/20/plug-your-minitel-on-your-raspberry-pi/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+  
+
+  <nav id="pagination">
+  
+  
+  <div class="clearfix"></div>
+</nav>

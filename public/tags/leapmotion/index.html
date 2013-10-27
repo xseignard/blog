@@ -1,0 +1,114 @@
+
+
+
+<h2 class="archive-title tag">leapmotion</h2>
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-06-25T13:49:38.000Z"><a href="/2013/06/25/interfacing-leap-motion-with-arduino-thanks-to-nodejs/">Jun 25 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/06/25/interfacing-leap-motion-with-arduino-thanks-to-nodejs/">Interfacing Leap Motion with Arduino thanks to Node.js</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>What about controlling physical things by waving your hands?</p>
+<p>Thanks to the Leap Motion, Arduino and a bit of Node.js magic it&#39;s pretty simple!</p>
+<p>Let&#39;s check that!</p>
+<h1>Leap Motion</h1>
+<p>There is a nice feature in the SDK of the Leap Motion: the websocket server.</p>
+<p>When activated, the Leap Motion software streams the tracking data over it. You then just need to connect your software to it and you&#39;re ready to analyse these data.</p>
+<p>Go to the Leap Motion controller settings, and then in the WebSocket tab and activate it.</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/leapWebSocket.png" alt=""></p>
+<p>The websocket server is now accessible at the following adress: <code>ws://127.0.0.1:6437</code></p>
+<h1>Connect your Node.js application to the websocket server</h1>
+<p>Node.js is amazing, and connecting your app to the Leap Motion websocket server is just a matter of 2 lines.</p>
+<p>In your project, install the <code>ws</code> library with <code>npm install ws --save</code></p>
+<p>And then you can check everything is working with this simple code:</p>
+<figure class="highlight"><pre><span class="title">var</span> webSocket = require('ws'),
+    ws = new webSocket('ws://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6437</span>');
+
+<span class="title">ws</span>.on('message', function(<span class="typedef"><span class="keyword">data</span>, flags) <span class="container">{
+    <span class="title">console</span>.<span class="title">log</span>(<span class="title">data</span>);
+}</span>);</span>
+</pre></figure>
+
+<p>When running this script, it should log the data coming from the websocket. If so, you are ok!</p>
+<p>It is then just a matter of parsing the data and take what you need in it!</p>
+<p>Here you can find an example of a frame: <a href="https://gist.github.com/xseignard/5858797">frame.json</a></p>
+<h1>Arduino</h1>
+<p>So you have now all the data you need from the Leap Motion, how can you pass it to the Arduino? Node.js is again the answer!</p>
+<p>Thanks to the marvelous <a href="https://github.com/rwldrn/johnny-five">johnny-five</a> library, you can talk to the Arduino directly from Node.js! To achieve that, you&#39;ll just need to upload the Standard Firmata on your Arduino.</p>
+<p>Open the Arduino IDE, open the <code>File&gt;Examples&gt;Firmata&gt;StandardFirmata</code> and upload it to your Arduino.</p>
+<p>You can now use <code>johnny-five</code> to communicate with the Arduino.</p>
+<p>Install it: <code>npm install johnny-five --save</code>. Below is a snippet to connect your board and make the led that is tied to the pin 13 blink.</p>
+<figure class="highlight"><pre><span class="reserved">var</span> five = require(<span class="string">'johnny-five'</span>),
+    board = <span class="keyword">new</span> five.Board(),
+    led;
+
+board.<span class="literal">on</span>(<span class="string">'ready'</span>, <span class="reserved">function</span>() {
+    led = <span class="keyword">new</span> five.Led(<span class="number">13</span>);
+    led.strobe();
+});
+</pre></figure>
+
+<p>Easy isn&#39;t it?</p>
+<h1>Plug all this together</h1>
+<p>It&#39;s now really easy to plug all this together. Let&#39;s try to make a simple example that turns on the led when the Leap Motion sees 2 hands, and turns it off when not. You should take a look to the sample frame once more: <a href="https://gist.github.com/xseignard/5858797">frame.json</a>. </p>
+<figure class="highlight"><pre><span class="title">var</span> webSocket = require('ws'),
+    ws = new webSocket('ws://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6437</span>'),
+    five = require('johnny-five'),
+    board = new five.<span class="type">Board</span>(),
+    led, frame;
+
+<span class="title">board</span>.on('ready', function() {
+    led = new five.<span class="type">Led</span>(<span class="number">13</span>);    
+    ws.on('message', function(<span class="typedef"><span class="keyword">data</span>, flags) <span class="container">{
+        <span class="title">frame</span> = <span class="type">JSON</span>.<span class="title">parse</span>(<span class="title">data</span>); 
+        <span class="title">if</span> (<span class="title">frame</span>.<span class="title">hands</span> && <span class="title">frame</span>.<span class="title">hands</span>.<span class="title">length</span> &gt; 1) {
+            <span class="title">led</span>.<span class="title">on</span>();
+        }</span></span>
+        <span class="keyword">else</span> {
+            led.off();
+        }
+    });
+});
+</pre></figure>
+
+<p>That&#39;s it! (I hope so, it&#39;s not tested :))</p>
+<h1>Going further</h1>
+<p>Here is the demo I made few weeks ago:</p>
+<iframe src="http://player.vimeo.com/video/68530396" width="700" height="393" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+
+<p>You can find the code on github: <a href="https://github.com/xseignard/leapLamp">leapLamp</a>, feel free to use it and/or ask for some help.</p>
+<p>Happy coding.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+  
+
+  <nav id="pagination">
+  
+  
+  <div class="clearfix"></div>
+</nav>

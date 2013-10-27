@@ -1,0 +1,899 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>/dev/xavier</title>
+  <meta name="author" content="@xavier_seignard">
+  
+  <meta name="description" content="show me some code!">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="/dev/xavier"/>
+
+  <!-- TWITTER CARD -->
+  <!-- card type -->
+  
+  <meta property="twitter:card" content="summary"/>
+  
+  <!-- site -->
+  <meta property="twitter:site" content="@xavier_seignard"/>
+  <!-- author -->
+  <meta property="twitter:creator" content="@xavier_seignard"/>
+  <!-- title -->
+  
+  <meta name="twitter:title" content="/dev/xavier">
+  
+  <!-- description -->
+  
+  <meta name="twitter:description" content="show me some code!">
+  
+  <!-- image -->
+  
+  <!-- TWITTER CARD -->
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="/dev/xavier" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37483328-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+<!-- 
+.......................................................................................... .........
+.......................................................................................... .........
+.................................mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm............. .........
+.........................mmmmmmmmmmmmmmmm..................................mmmmm.......... .........
+...................mmmmmmmmmmm..........mmmmm...............mm................mmm......... .........
+.................mmmm............................................mm.............mmm....... .........
+..............mmmm....m..mmmmmm............mmm..............mm......m............mmm...... .........
+............mmmm.................................................mm....m..........mmm..... .........
+...........mmm............mmmmm....................m..........mmm...m....m.........mmm.... .........
+..........mm...........m.........................m................mm...m....m.......mmm... .........
+..........mm.........m............m..................................m..m....m.......mm... .........
+..........mm........m..................................................m..m...........mm.. .........
+.........mm..........................................mmmmmmmmmmmmmm...................mmm. .........
+........mmm............mmmmmmmm...................mmmmm...mmmmmmmmmmmm.................mmm .........
+....mmmm...........mmmmmmmmmmmmmm.............mmmm......mmmmmmmm..mmm..................mmm .......
+...mmm...mmmmm.mmm.mmmmmmmmmmmmmmm...........mmm.....mmmmmmmmmmmmmmmmm....m....mmmmmmmm.mm mm.....
+..mm...m..................mmmmmmmmmmmmm.......mmmmmmmmm...........mm...m.................. mmm....
+.mm..m...mm.....................mmmm...........mmmmm......mmm..............mmmmmmmmmm..... ..mm...
+.mm.m..m...mmmmmm................mm.........................mmmm.......mmmmmm......mmmm... .m.mm..
+.mmm.....mmmmmmmmmm....m.........mm...........................mmmmmmmmmmm.....mm.....mmm.. .m..mmm
+.mmm.....m.......mmmmmmmm........mm...........................................mm......mm.. .m..mmm
+.mmm..m.......mm..mmmm........mmmm.........................................mmmmm.......mm. .m...mm
+.mm....m......mm...........mmmm................mmmmmmmm................mmmmm...mmmmmm..mm. .m...mm
+.mmmm...mm..mmmm..........mmmmm....................mm..............mmmmmm.....mmm.mmm.mmm. .m..mmm
+..mm.mm.....mmmm.......mm..mmmmm.........mmmmmmm...mm..........mmmmmmm........mm......mm.. ....mmm
+..mmm....m..mm.mmm...m........mmm..............m.mmm......mmmmmmmm.mm.......mmmm.....mm... m..mmm.
+...mmm.....mmmmmmmmm............mmmmmm...............mmmmmmmm......mm....mmmmmm.........mm ..mm...
+....mmm....mm.mm.mmmmmm...........mmm...........mmmmmmmm..........mmm.mmmmmmmm.......m.... .mmm...
+.....mm....mmmm..mm..mmmmmmmm........mmmmmmmmmmmmmm..mm..........mmmmmmm..mmm..........mmm mm.....
+.....mm....mmmm..mm....mmmmmmmmmmmmmmmmmmmm..........mm......mmmmmmmm....mmm............mm m......
+.....mm....mmmm..mm...mmm.......mm.......mm..........mmm.mmmmmmmmm.mm...mmm...........mmm. .......
+.....mm....mmmmmmmm...mm........mm.......mm.........mmmmmmmmmmm....mm..mmm...........mmm.. .......
+.....mm....mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.......mmmmmm............mm... .......
+.....mm....mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.mm...........mmm.............mmm... .......
+.....mm.....mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.......mm.........mmm..............mmm.... .......
+.....mm.....mm.mmmmmmmmmmmmmmmmmmmmmmmmmmm.mm..........mmm.....mmmm...............mmm..... .......
+.....mm......mm.mm..mm...mm.....mmm........mm...........mm...mmmm...............mmm....... .......
+.....mm......mmmmmm.mmm...mm.....mm........mm............mmmmmm................mmm........ .......
+.....mm.......mmmm...mmm..mmm....mm........mm.........mmmmmm.......m.....m...mmm.......... .......
+.....mm.........mmmmmmmmm..mm....mmm.......mm..mmmmmmmmm........m.....mm...mmmm........... .......
+.....mm..............mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.........mm....mm....mmmm ...............
+....mmm........m..........................................m.....mm....mmmmm.. ..............
+....mm..........m....................................mm......m.....mmmmm..... ..............
+....mm............m..............................mm......mm.....mmmmm........ ..............
+..mm.....mm........mmm...........mmmmmmmmmm......mm.......mmmmmm....... ............
+.mm.........m.........................mmm............mmmmm...... ........
+.mmm..........mmmmmmmmmmmmmmm.....................mmmmm...... ....
+.mmm..........................................mmmmm...... ..
+..mmm...................................mm.mmmmm....... 
+...mmmm............................mmmmmmmmmm........ 
+....mmmmm...................mmmmmmmmm.............. 
+.......mmmmmmmmmmmmmmmmmmmmmmmm....................
+-->
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">/dev/xavier</a></h1>
+  <h2><a href="/">show me some code</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-06-25T13:49:38.000Z"><a href="/2013/06/25/interfacing-leap-motion-with-arduino-thanks-to-nodejs/">Jun 25 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/06/25/interfacing-leap-motion-with-arduino-thanks-to-nodejs/">Interfacing Leap Motion with Arduino thanks to Node.js</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>What about controlling physical things by waving your hands?</p>
+<p>Thanks to the Leap Motion, Arduino and a bit of Node.js magic it&#39;s pretty simple!</p>
+<p>Let&#39;s check that!</p>
+<h1>Leap Motion</h1>
+<p>There is a nice feature in the SDK of the Leap Motion: the websocket server.</p>
+<p>When activated, the Leap Motion software streams the tracking data over it. You then just need to connect your software to it and you&#39;re ready to analyse these data.</p>
+<p>Go to the Leap Motion controller settings, and then in the WebSocket tab and activate it.</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/leapWebSocket.png" alt=""></p>
+<p>The websocket server is now accessible at the following adress: <code>ws://127.0.0.1:6437</code></p>
+<h1>Connect your Node.js application to the websocket server</h1>
+<p>Node.js is amazing, and connecting your app to the Leap Motion websocket server is just a matter of 2 lines.</p>
+<p>In your project, install the <code>ws</code> library with <code>npm install ws --save</code></p>
+<p>And then you can check everything is working with this simple code:</p>
+<figure class="highlight"><pre><span class="title">var</span> webSocket = require('ws'),
+    ws = new webSocket('ws://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6437</span>');
+
+<span class="title">ws</span>.on('message', function(<span class="typedef"><span class="keyword">data</span>, flags) <span class="container">{
+    <span class="title">console</span>.<span class="title">log</span>(<span class="title">data</span>);
+}</span>);</span>
+</pre></figure>
+
+<p>When running this script, it should log the data coming from the websocket. If so, you are ok!</p>
+<p>It is then just a matter of parsing the data and take what you need in it!</p>
+<p>Here you can find an example of a frame: <a href="https://gist.github.com/xseignard/5858797">frame.json</a></p>
+<h1>Arduino</h1>
+<p>So you have now all the data you need from the Leap Motion, how can you pass it to the Arduino? Node.js is again the answer!</p>
+<p>Thanks to the marvelous <a href="https://github.com/rwldrn/johnny-five">johnny-five</a> library, you can talk to the Arduino directly from Node.js! To achieve that, you&#39;ll just need to upload the Standard Firmata on your Arduino.</p>
+<p>Open the Arduino IDE, open the <code>File&gt;Examples&gt;Firmata&gt;StandardFirmata</code> and upload it to your Arduino.</p>
+<p>You can now use <code>johnny-five</code> to communicate with the Arduino.</p>
+<p>Install it: <code>npm install johnny-five --save</code>. Below is a snippet to connect your board and make the led that is tied to the pin 13 blink.</p>
+<figure class="highlight"><pre><span class="reserved">var</span> five = require(<span class="string">'johnny-five'</span>),
+    board = <span class="keyword">new</span> five.Board(),
+    led;
+
+board.<span class="literal">on</span>(<span class="string">'ready'</span>, <span class="reserved">function</span>() {
+    led = <span class="keyword">new</span> five.Led(<span class="number">13</span>);
+    led.strobe();
+});
+</pre></figure>
+
+<p>Easy isn&#39;t it?</p>
+<h1>Plug all this together</h1>
+<p>It&#39;s now really easy to plug all this together. Let&#39;s try to make a simple example that turns on the led when the Leap Motion sees 2 hands, and turns it off when not. You should take a look to the sample frame once more: <a href="https://gist.github.com/xseignard/5858797">frame.json</a>. </p>
+<figure class="highlight"><pre><span class="title">var</span> webSocket = require('ws'),
+    ws = new webSocket('ws://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6437</span>'),
+    five = require('johnny-five'),
+    board = new five.<span class="type">Board</span>(),
+    led, frame;
+
+<span class="title">board</span>.on('ready', function() {
+    led = new five.<span class="type">Led</span>(<span class="number">13</span>);    
+    ws.on('message', function(<span class="typedef"><span class="keyword">data</span>, flags) <span class="container">{
+        <span class="title">frame</span> = <span class="type">JSON</span>.<span class="title">parse</span>(<span class="title">data</span>); 
+        <span class="title">if</span> (<span class="title">frame</span>.<span class="title">hands</span> && <span class="title">frame</span>.<span class="title">hands</span>.<span class="title">length</span> &gt; 1) {
+            <span class="title">led</span>.<span class="title">on</span>();
+        }</span></span>
+        <span class="keyword">else</span> {
+            led.off();
+        }
+    });
+});
+</pre></figure>
+
+<p>That&#39;s it! (I hope so, it&#39;s not tested :))</p>
+<h1>Going further</h1>
+<p>Here is the demo I made few weeks ago:</p>
+<iframe src="http://player.vimeo.com/video/68530396" width="700" height="393" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+
+<p>You can find the code on github: <a href="https://github.com/xseignard/leapLamp">leapLamp</a>, feel free to use it and/or ask for some help.</p>
+<p>Happy coding.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-05-20T11:07:21.000Z"><a href="/2013/05/20/plug-your-minitel-on-your-raspberry-pi/">May 20 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/05/20/plug-your-minitel-on-your-raspberry-pi/">Plug your Minitel on your Raspberry Pi</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Hi,</p>
+<p>So what is a Minitel? According to Wikipedia :</p>
+<blockquote>
+<p>The Minitel was a Videotex online service accessible through telephone lines, and is considered one of the world&#39;s most successful pre-World Wide Web online services.<a href="http://en.wikipedia.org/wiki/Minitel">¹</a> </p>
+</blockquote>
+<p>This service was accessible through particular devices. They had a screen, a keyboard and a modem.</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/minitel.jpg" alt=""></p>
+<p>A screen and a keyboard are just what we need for our Pi, so let&#39;s plug them together!</p>
+<h1>Minitel and serial communication</h1>
+<p>The Minitel have a serial port. It&#39;s goal is to communicate to peripherals such as a printer or whatever.</p>
+<p>The socket is a classic 180° DIN with 5 pins :</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/dinMinitel.JPG" alt=""></p>
+<p>Here is the description of the pins:</p>
+<ul>
+<li>1: Rx: data reception </li>
+<li>2: Ground</li>
+<li>3: Tx: data transmission</li>
+<li>4: Ready to work signal</li>
+<li>5: 8.5v - 1A power supply</li>
+</ul>
+<p>So pins 1,2 and 3 are what we need to communicate through serial with the Pi.</p>
+<p>Please note that not all Minitels have this kind of sockets. To find a compatible one, the Minitel must have this socket AND two special keys on the keyboard <code>Fnct</code> and <code>Ctrl</code>. They are usualy called <em>Minitel 1B</em>.</p>
+<h1>TTL levels and the Pi</h1>
+<p>The UART on the Pi works with 0v and 3.3v. But a lot of old stuff use 0v and 5v. This is the case of the Minitel, so we need to adapt the voltage levels :</p>
+<ul>
+<li>Lower the Tx level of the Minitel from 5v to 3.3v</li>
+<li>Raise the Tx level of the Pi from 3.3v to 5v</li>
+</ul>
+<p>To achieve that, I used the following schema based on the recommendation of <a href="https://twitter.com/lhuet35">@lhuet35</a> (thanks!). You can check its Devoxx presentation (in french) here : <a href="http://parleys.com/play/51599a1ee4b0ffdd7e058b6b/chapter0/about">3615 Cloud</a></p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/minitel.png" alt=""></p>
+<p>Be careful, the unused pin between the 5v and the GND of the Pi is not depicted on this schema!!</p>
+<p>Here is the stuff mounted on a breadboard :</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/minitelProto.JPG" alt=""></p>
+<h1>Configure a tty on the UART</h1>
+<p>You then need to configure a tty that will communicate through the UART.</p>
+<p>The following configuration is based on a Raspbian, but it should be the same on other distros.</p>
+<ul>
+<li>You may need to install <code>getty</code> :<ul>
+<li><code>sudo apt-get install getty</code></li>
+</ul>
+</li>
+<li>Backup the <code>/boot/cmdline.txt</code> file just in case :)<ul>
+<li><code>sudo cp /boot/cmdline.txt /boot/cmdline.bak.txt</code></li>
+</ul>
+</li>
+<li>Edit the file: <ul>
+<li><code>sudo vim /boot/cmdline.txt</code> </li>
+<li>and remove everything related to the serial port <code>ttyAMA0</code>, i.e. : <code>console=ttyAMA0,115200 kgdboc=ttyAMA0,115200</code></li>
+</ul>
+</li>
+<li>Add a <code>getty</code> conf on <code>/etc/inittab</code> :<ul>
+<li><code>7:2345:respawn:/sbin/getty ttyAMA0 4800v23</code></li>
+<li>also check there is no other <code>getty</code> conf for this tty on the file</li>
+</ul>
+</li>
+<li>Then you need to create a <code>gettydefs</code> file (or edit it)<ul>
+<li><code>sudo vim /etc/gettydefs</code></li>
+<li>and add the following <code>4800v23# B4800 CS7 PARENB -PARODD GLOBAL # B4800 ISTRIP CS7 PARENB -PARODD GLOBAL BRKINT IGNPAR ICRNL IXON IXANY OPOST ONLCR CREAD HUPCLISIG ICANON ECHO ECHOE ECHOK #@S login: #4800v23</code> on one line!</li>
+<li>this will configure the tty on UART</li>
+</ul>
+</li>
+</ul>
+<p>You can now plug the Pi to the Minitel and reboot the Pi.</p>
+<h1>Configure the Minitel</h1>
+<p>You need to switch the Minitel mode to be able to communicate through the serial port.</p>
+<ul>
+<li>Power on the Minitel</li>
+<li>Press <code>Fnct+T</code> then <code>A</code> : the Minitel will switch to the serial mode</li>
+<li>Press <code>Fnct+P</code> then <code>4</code> : the Minitel now communicate through serial at 4800bps (the max speed)</li>
+<li>Press <code>Fnct+T</code> then <code>E</code> : to deactivate the local echo</li>
+<li>Press <code>↵</code> and you should now see the login prompt (maybe with some white squares), put your login and you&#39;re done!</li>
+</ul>
+<p>Be aware that you&#39;ll need to do this Minitel configuration everytime you power it up.</p>
+<p>Here is a pic of my Minitel :</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/piMinitel.JPG" alt=""></p>
+<p>Happy coding!</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/05/20/plug-your-minitel-on-your-raspberry-pi/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-04-25T08:38:41.000Z"><a href="/2013/04/25/quality-analysis-on-node.js-projects-with-mocha-istanbul-and-sonar/">Apr 25 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/04/25/quality-analysis-on-node.js-projects-with-mocha-istanbul-and-sonar/">Quality analysis on Node.js projects with Mocha, Istanbul and Sonar</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Hello,</p>
+<p>What about having a nice dashboard for the code quality of your project? <a href="http://www.sonarsource.org">Sonar</a> is a well known open source tool to handle that.</p>
+<p>It handles a wide range of programming languages, from COBOL to Javascript. So let&#39;s give a try to run Sonar on Node.js projects!</p>
+<h1>Prerequisites</h1>
+<ul>
+<li>I will cover the use of Sonar with <a href="http://visionmedia.github.io/mocha/">Mocha</a> and <a href="https://github.com/gotwarlost/istanbul">Istanbul</a>, my tools of choice when it comes to js testing. But if you are able to generate xunit ans lcov reports from your test suite, chances the stuff I describe here will also work.</li>
+<li>You need to install Sonar : <a href="http://docs.codehaus.org/display/SONAR/Installation+and+Upgrade">http://docs.codehaus.org/display/SONAR/Installation+and+Upgrade</a></li>
+<li>And the Sonar Javascript plugin : <a href="http://docs.codehaus.org/display/SONAR/JavaScript+Plugin">http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</a></li>
+<li>You&#39;ll also need Make : <a href="http://www.gnu.org/software/make/">http://www.gnu.org/software/make/</a> which is the build tool I use for Node.js (we could use <a href="http://gruntjs.com/">Grunt</a>, but I still need good arguments to switch to it for node.js, if you have some let me know!)</li>
+</ul>
+<h1>Testing with Mocha</h1>
+<p>Mocha has a lot of built-in functionalities and is extensible. We&#39;ll see this point will be really important. Because of its extensibility, you can output your tests results in various formats. If you don&#39;t know Mocha, you should give it a try!</p>
+<p>So far, Sonar only handles the xunit format as input, so you need a Mocha reporter that can handle it. There is a bundled reporter in Mocha that achieve that, but you need to pipe the console output to the xunit file by yourself. </p>
+<p>You could also use the following reporter plugin that does the work for you : <a href="https://github.com/peerigon/xunit-file">https://github.com/peerigon/xunit-file</a></p>
+<p>So install it : <code>npm install xunit-file --save-dev</code> and then it&#39;s just a matter of setting an environment variable during the build to tell where to output the file.</p>
+<p>So the xunit task in my <code>Makefile</code> look like this :</p>
+<pre><code>xunit:
+	<span class="variable">@#</span> check <span class="keyword">if</span> reports folder <span class="keyword">exists</span>, <span class="keyword">if</span> <span class="keyword">not</span> create it
+	<span class="variable">@test</span> -d reports || <span class="keyword">mkdir</span> reports
+	XUNIT_FILE=<span class="string">"reports/TESTS-xunit.xml"</span> <span class="variable">$(</span>MOCHA) -R xunit-file <span class="variable">$(</span>TESTS)
+</code></pre>
+
+<p>Where <code>$(TESTS)</code> is the list of tests. Since I use a convention to name my tests (they always end with <code>.test.js</code>) I can retrieve them easily.</p>
+<pre><code><span class="setting">TESTS=<span class="value">$(shell find test/ -name <span class="string">"*.test.js"</span>)</span></span>
+</code></pre>
+
+<p>And <code>$(MOCHA)</code> points to the mocha binary. I tend to install the tools I use inside the project rather than globally, it let me handle specific version of them for each project and gives the project some portability. But I don&#39;t know if it&#39;s a good practice or not. Feel free to drop a comment!</p>
+<pre><code><span class="setting">MOCHA=<span class="value">node_modules/.bin/mocha</span></span>
+</code></pre>
+
+<p>You may have noticed the weird name I gave to the xunit output file : <code>TESTS-xunit.xml</code>, it&#39;s really important it starts with <code>TESTS</code>! If not, you won&#39;t be able to gather tests metrics in Sonar. </p>
+<p>If you dig into the code of Sonar, here is why : <a href="https://github.com/SonarSource/sonar-java/blob/master/sonar-surefire-plugin/src/main/java/org/sonar/plugins/surefire/api/AbstractSurefireParser.java#L67">https://github.com/SonarSource/sonar-java/blob/master/sonar-surefire-plugin/src/main/java/org/sonar/plugins/surefire/api/AbstractSurefireParser.java#L67</a></p>
+<p>You now have a test report ready to be consumed by Sonar (and Jenkins too if you want!).</p>
+<h1>Code coverage with Istanbul</h1>
+<p>Istanbul is the new cool kid when it comes to code coverage. And it is pretty simple to use! </p>
+<p><code>instabul cover myNodeCommand</code> will transparently add coverage info to the executed node command!</p>
+<p>Since <code>mocha</code> is a node command, everything is ok!</p>
+<p>You can just do the following</p>
+<pre><code><span class="comment">_MOCHA=node_modules/</span>.<span class="comment">bin/_mocha</span>
+<span class="comment">coverage:</span>
+<span class="comment">	@#</span> <span class="comment">check</span> <span class="comment">if</span> <span class="comment">reports</span> <span class="comment">folder</span> <span class="comment">exists</span>, <span class="comment">if</span> <span class="comment">not</span> <span class="comment">create</span> <span class="comment">it</span>
+<span class="comment">	@test</span> <span class="literal">-</span><span class="comment">d</span> <span class="comment">reports</span> <span class="comment">||</span> <span class="comment">mkdir</span> <span class="comment">reports</span>
+<span class="comment">	$(ISTANBUL)</span> <span class="comment">cover</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">report</span> <span class="comment">lcovonly</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">dir</span> <span class="string">.</span><span class="comment">/reports</span> <span class="comment">$(_MOCHA)</span> <span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="comment">R</span> <span class="comment">spec</span> <span class="comment">$(TESTS)
+</code></pre>
+
+<p>Just note the double dash to distinguish <code>istanbul</code> args from the <code>mocha</code> ones and the use of <code>_mocha</code> internal executable (see <a href="https://github.com/gotwarlost/istanbul/issues/44">istanbul/issues/44</a>).</p>
+<p>If you need to produce some other report formats (html, cobertura, etc.), you can check the <a href="https://github.com/gotwarlost/istanbul#the-report-command">report options</a>.</p>
+<h1>Sonar</h1>
+<p>Sonar analysis can be performed in various ways (ant, maven, sonar-runner). Even if i do like maven (yes I do!), there&#39;s no way I&#39;ll put a <code>pom.xml</code> in a node.js project.</p>
+<p>We&#39;ll use the <a href="http://docs.codehaus.org/display/SONAR/Analyzing+with+Sonar+Runner">sonar-runner</a>. </p>
+<p>Download it : <a href="http://docs.codehaus.org/display/SONAR/Installing+and+Configuring+Sonar+Runner">http://docs.codehaus.org/display/SONAR/Installing+and+Configuring+Sonar+Runner</a>. But, for the sake of portability I prefer to embed it in my project rather than installing it (again, I don&#39;t know if it&#39;s a good practice, but it&#39;s mine).</p>
+<p>Then, you need to configure a file at the root of your project that will drive the sonar analysis : <code>sonar-project.properties</code>. This file is really simple, it just tells Sonar where to find the reports we produced before and provide some general info about the project (see <a href="http://docs.codehaus.org/display/SONAR/JavaScript+Plugin">http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</a>).</p>
+<pre><code>sonar<span class="variable">.projectKey</span>=sonar-js
+sonar<span class="variable">.projectName</span>=sonar-js
+sonar<span class="variable">.projectVersion</span>=<span class="number">0.0</span><span class="number">.1</span>
+ 
+sonar<span class="variable">.sources</span>=src
+sonar<span class="variable">.tests</span>=test
+sonar<span class="variable">.language</span>=js
+sonar<span class="variable">.profile</span>=node
+
+sonar<span class="variable">.dynamicAnalysis</span>=reuseReports
+
+sonar<span class="variable">.javascript</span><span class="variable">.jstest</span><span class="variable">.reportsPath</span>=reports
+sonar<span class="variable">.javascript</span><span class="variable">.lcov</span><span class="variable">.reportPath</span>=reports/coverage<span class="variable">.lcov</span>
+</code></pre>
+
+<p>The file speaks by itself: project info, project directory structure and tell Sonar to reuse already generated reports and where they are.</p>
+<p>Please note that i use a custom profile which is a set of coding rules my code will be tested against. If you don&#39;t have this profile on your Sonar instance, you should delete the <code>sonar.profile=node</code>. Your code will be then tested against the default js profile, which is not really adapted for node.js. I&#39;ll come back on that.</p>
+<p>So after you have the xunit and lcov file, you can run Sonar.</p>
+<p>Here is my task in the <code>Makefile</code>:</p>
+<pre><code>sonar:
+	<span class="variable">@#</span> add the sonar sonar-runner executable to the PATH <span class="keyword">and</span> run it
+	PATH=<span class="string">"<span class="variable">$$</span>PWD/tools/sonar-runner-2.2/bin:<span class="variable">$$</span>PATH"</span> sonar-runner
+</code></pre>
+
+<p>That&#39;s it!</p>
+<p>Please note that the actual configuration in sonar-project.properties assumes the Sonar server is running on <a href="http://localhost:9000">http://localhost:9000</a>.</p>
+<p>You can change that by specifying the right values in sonar-project.properties (see <a href="http://docs.codehaus.org/display/SONAR/Analysis+Parameters">http://docs.codehaus.org/display/SONAR/Analysis+Parameters</a>).</p>
+<p>You can now browse your Sonar dashboard and see this nice report:</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/dashboard.png" alt=""></p>
+<p>In a glance, you can see the wealth of your project : tests results, code coverage, coding rules compliance, complexity, etc...</p>
+<p>You can then drill down in any metrics, to see where are the coding rules violations, which line is covered or not, etc. Just read about Sonar to see how powerful it is. You can even see how the metrics evolve between two analysis!</p>
+<p>Here is an example of code coverage report:</p>
+<p><img src="https://dl.dropboxusercontent.com/u/17657227/Info/blog/coverage-dd.png" alt=""></p>
+<p>You can find a dummy project on github that covers the ideas of this blog post : <a href="https://github.com/xseignard/sonar-js">https://github.com/xseignard/sonar-js</a></p>
+<h1>Notes</h1>
+<p>I use a custom quality profile in Sonar for Node.js (you can find it here: <a href="https://github.com/xseignard/sonar-js/blob/master/tools/node_js.xml">https://github.com/xseignard/sonar-js/blob/master/tools/node_js.xml</a>).</p>
+<p>You can install it following the docs: <a href="http://docs.codehaus.org/display/SONAR/Quality+profiles#QualityProfiles-BackupingRestoringProfile">http://docs.codehaus.org/display/SONAR/Quality+profiles#QualityProfiles-BackupingRestoringProfile</a></p>
+<p>My profile is far from ideal, and can be discussed.</p>
+<p>As I told you at the beginning, if you can generate xunit and lcov formats, you&#39;re good! So you can easily apply this technique to Angular projects, because of the mighty <a href="http://karma-runner.github.io/">Karma runner</a>, see :</p>
+<ul>
+<li>the reporters section in <a href="http://karma-runner.github.io/0.8/config/configuration-file.html">http://karma-runner.github.io/0.8/config/configuration-file.html</a></li>
+<li>the coverage page <a href="http://karma-runner.github.io/0.8/config/coverage.html">http://karma-runner.github.io/0.8/config/coverage.html</a></li>
+</ul>
+<p>Have fun.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/04/25/quality-analysis-on-node.js-projects-with-mocha-istanbul-and-sonar/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-04-24T09:49:12.000Z"><a href="/2013/04/24/processing-and-gpios-on-raspberry-pi/">Apr 24 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/04/24/processing-and-gpios-on-raspberry-pi/">Processing and GPIOs on Raspberry Pi</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Hello,</p>
+<p><a href="http://www.processing.org/">Processing</a> is a nice <em>programming language</em> for creative coding, and you can physically interact with the <a href="http://www.raspberrypi.org/">Raspberry Pi</a> thanks to its GPIOs. So why not combining them?</p>
+<p>Let&#39;s do it.</p>
+<h1>Prerequisites</h1>
+<ul>
+<li>A Raspberry Pi (<em>sic</em>!) running with a Raspbian image (it may work on other configurations, but not tested).</li>
+<li>All command line below are executed from the home directory (i.e. <code>/home/pi/</code> for the pi user).</li>
+<li>You may need to install some tools <code>sudo apt-get install unzip ca-certificates</code>.</li>
+</ul>
+<h1>Install Oracle JDK8 on the Raspberry Pi</h1>
+<p>The idea of installing JDK8 is not to enjoy those long awaited Lambdas, but to provide the execution platform for Processing. Luckily, Oracle started to provide builds of the JDK for the arm platform.</p>
+<p>Download the JDK.</p>
+<pre><code>wget --no-check-certificate http:<span class="comment">//www.java.net/download/JavaFXarm/jdk-8-ea-b36e-linux-arm-hflt-29_nov_2012.tar.gz</span>
+</code></pre>
+
+<p>Untar the binaries at the right place.</p>
+<pre><code>sudo mkdir -p /opt/java
+tar xvzf jdk-<span class="number">8</span>-ea-b36e-linux-arm-hflt-<span class="number">29</span>_nov_2012.tar.gz
+sudo mv jdk1<span class="number">.8</span><span class="number">.0</span> /opt/java
+</code></pre>
+
+<p>Then, you must tell raspbian to use these binaries to provide <code>java</code>.</p>
+<pre><code>sudo update-alternatives --install <span class="string">"/usr/bin/java"</span> <span class="string">"java"</span> <span class="string">"/opt/java/jdk1.8.0/bin/java"</span> <span class="number">1</span>
+</code></pre>
+
+<p>If you already had another <code>java</code> version installed, you may need to choose the one we just installed, if not you can skip this.</p>
+<pre><code>sudo update-alternatives --config java
+</code></pre>
+
+<p>And choose the JDK8 by entering the corresponding number.</p>
+<p>Now you need to define some environment variables for <code>java</code> to run properly.</p>
+<pre><code>echo export JAVA_HOME=<span class="string">"/opt/java/jdk1.8.0"</span> &gt;&gt; .bashrc
+echo export PATH=$PATH:$JAVA_HOME/bin &gt;&gt; .bashrc
+source .bashrc
+</code></pre>
+
+<p>It will add the environment variables at the end of your <code>.bashrc</code>. If you use <code>zsh</code> (and you should! with <a href="https://github.com/robbyrussell/oh-my-zsh">oh-my-zsh</a>), just replace <code>.bashrc</code> with <code>.zshrc</code> in the three lines of code above.</p>
+<p>Java is now installed, and you can check it with <code>java -version</code>. It should display something like this:</p>
+<pre><code>java version <span class="string">"1.8.0-ea"</span>
+Java(TM) SE Runtime Environment (build <span class="number">1.8</span><span class="number">.0</span>-ea-b36e)
+Java HotSpot(TM) Client VM (build <span class="number">25.0</span>-b04, mixed mode)
+</code></pre>
+
+<p>Also check the environment variables, it should return something.</p>
+<pre><code>echo $JAVA_HOME | grep /opt/java/jdk1<span class="number">.8</span><span class="number">.0</span>
+echo $PATH | grep /opt/java/jdk1<span class="number">.8</span><span class="number">.0</span>/bin
+</code></pre>
+
+<p>If those checks are not ok, something went wrong, feel free to drop a comment.</p>
+<h1>Install Processing</h1>
+<p>The long awaited 2.0 final version is still not here (at the time of writing), but you can download the last beta.</p>
+<pre><code>wget http:<span class="comment">//processing.googlecode.com/files/processing-2.0b8-linux32.tgz</span>
+</code></pre>
+
+<p>Notice we&#39;ll use a x86 version, no worries we&#39;ll deal with it.</p>
+<p>Untar it</p>
+<pre><code>tar xvzf processing-<span class="number">2.0</span>b8-linux32.tgz
+</code></pre>
+
+<p>Java is bundled with Processing, so we need to tell it to use the java version we installed rather than the bundled one. To do that, we&#39;ll remove the java folder inside processing and replace this folder with a symbolic link to the java version we installed.</p>
+<pre><code>rm -rf processing-<span class="number">2.0</span>b8/java
+ln -s $JAVA_HOME processing-<span class="number">2.0</span>b8/java
+</code></pre>
+
+<p>Processing is now installed! You can now log in the UI of the Raspberry (if not already) and run processing from the terminal with the following:</p>
+<pre><code>cd ~/processing-<span class="number">2.0</span>b8;./processing
+</code></pre>
+
+<p>You&#39;ll have to wait a little bit to see the UI coming up.</p>
+<p>You may notice some error messages in the terminal, but so far it had no incidence for me, so I ignore them.</p>
+<h1>Install a library to interact with GPIOs</h1>
+<p>So far, I haven&#39;t found any Processing <em>ready</em> library, so I&#39;ll use the <a href="http://pi4j.com/">Pi4J</a> java library.</p>
+<p>Processing has a particular way to handle library, you need to have a special structure in the folders. And Pi4J is not packaged according to the Processing convention. So you&#39;ll need to re-arrange stuff (see <a href="http://wiki.processing.org/w/How_to_Install_a_Contributed_Library">http://wiki.processing.org/w/How_to_Install_a_Contributed_Library</a>).</p>
+<p>First, go back to the <code>/home/pi</code> folder in the terminal.</p>
+<p>Then download the Pi4J lib and unzip it:</p>
+<pre><code>wget https:<span class="comment">//pi4j.googlecode.com/files/pi4j-0.0.5.zip</span>
+unzip pi4j-<span class="number">0.0</span><span class="number">.5</span>.zip
+</code></pre>
+
+<p>Since Processing is not happy when a lib have something else than letters and numbers in the lib name, you need to rename the unzipped folder.</p>
+<pre><code>mv pi4j-<span class="number">0.0</span><span class="number">.5</span> pi4j
+</code></pre>
+
+<p>Then you need to re-arrange files to stick with the Processing convention.</p>
+<pre><code>mv pi4j/lib pi4j/library
+mv pi4j/library/pi4j-core.jar pi4j/library/pi4j.jar
+</code></pre>
+
+<p>Now you can put the lib in the Processing library folder (defaults to <code>~/sketchbook/libraries</code>).</p>
+<pre><code>mv pi4j sketchbook/libraries
+</code></pre>
+
+<p>Done! You can now import Pi4J in your Processing sketch!</p>
+<h1>Getting started with Pi4J</h1>
+<p>Here is a simple skecth which will add an ellipse every time a button is pressed.</p>
+<pre><code><span class="keyword">import</span> com.pi4j.io.gpio.GpioController;
+<span class="keyword">import</span> com.pi4j.io.gpio.GpioFactory;
+<span class="keyword">import</span> com.pi4j.io.gpio.GpioPinDigitalInput;
+<span class="keyword">import</span> com.pi4j.io.gpio.PinPullResistance;
+<span class="keyword">import</span> com.pi4j.io.gpio.RaspiPin;
+
+<span class="keyword">int</span> WIDTH = <span class="number">1280</span>;
+<span class="keyword">int</span> HEIGHT = <span class="number">1024</span>;
+GpioController gpio;
+GpioPinDigitalInput button;
+
+<span class="keyword">void</span> setup() {
+	size(WIDTH, HEIGHT);
+	gpio = GpioFactory.getInstance();
+	button = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_DOWN);
+}
+
+<span class="keyword">void</span> draw() {
+	<span class="keyword">if</span> (button.isHigh()) {
+		println(<span class="string">"pressed"</span>);
+		fill(<span class="keyword">int</span>(random(<span class="number">255</span>)), <span class="keyword">int</span>(random(<span class="number">255</span>)), <span class="keyword">int</span>(random(<span class="number">255</span>)));
+		<span class="keyword">float</span> x = random(WIDTH);
+		<span class="keyword">float</span> y = random(HEIGHT);
+		ellipse(x, y, <span class="number">80</span>, <span class="number">80</span>);
+	};
+}
+</code></pre>
+
+<p>I invite you to read the Pi4J documentation to dive into it. You should use events rather than testing the state of a button as shown above (see <a href="http://pi4j.com/example/listener.html">http://pi4j.com/example/listener.html</a>).</p>
+<p>Here is the wiring schema that comes along the sketch from above (borrowed from <a href="http://pi4j.com/">http://pi4j.com/</a>).
+<img src="http://pi4j.com/images/gpio-listener-example.png" alt=""></p>
+<p>If you try to run it, you&#39;ll face some permission issues since Pi4J require root privileges to access GPIOs. For now I export the application and run it with <code>sudo</code> to bypass it. It should exist a cleaner way to handle it. I&#39;ll update this post with a proper solution if there is.</p>
+<p>You are ready to poop some creative code! Enjoy!</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/04/24/processing-and-gpios-on-raspberry-pi/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-02-18T19:01:23.000Z"><a href="/2013/02/18/continuous-deployement-with-github-travis-and-heroku-for-node.js/">Feb 18 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/02/18/continuous-deployement-with-github-travis-and-heroku-for-node.js/">Continuous deployement with Github, Travis and Heroku for Node.js</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Cloud services helps the developer to focus on the code. In one or two commands you get a running server, a CI engine, <em>etc</em>.</p>
+<p>I wont present you Gihtub, Travis or Heroku, if you&#39;re not aware of them, just check their websites!</p>
+<h1>Prerequisites</h1>
+<p>You need the following to be installed on your machine:</p>
+<ul>
+<li>the <a href="https://toolbelt.heroku.com/">Heroku toolbelt</a>.</li>
+<li>the <a href="https://rubygems.org/">RubyGem</a> tool.</li>
+</ul>
+<h1>Setting all this up</h1>
+<p>First of all, you have to get your auth token from Heroku :</p>
+<pre><code>token=<span class="char">$(</span>heroku <span class="method">auth:</span>token)
+</code></pre>
+
+<p>This will store the token, and keep it for later.</p>
+<p>Then, install the Travis CLI tool:</p>
+<pre><code>su<span class="operator"><span class="keyword">do</span> gem install travis
+</code></pre>
+
+<p>You now have the Travis CLI tool installed. This will help you to encrypt your Heroku token.</p>
+<pre><code><span class="title">travis</span> encrypt HEROKU_API_KEY=<span class="variable">$token</span> --add
+</code></pre>
+
+<p>Running the above command will add your encrypted token to your <code>.travis.yml</code>.</p>
+<p>Open it and you should see something like this:</p>
+<pre><code><span class="method">env:</span> 
+  <span class="method">global:</span> 
+  - <span class="method">secure:</span> <span class="class">YOUR_ENCRYPTED_TOKEN</span>
+</code></pre>
+
+<p>Travis will decrypt it during the build, and be able to authenticate itself with Heroku.</p>
+<h1>Plug the pipe between Travis and Heroku</h1>
+<p>Now you need to tell Travis to deploy your app to Heroku after a succesful build.</p>
+<p>Luckily, Travis can handle it through its <a href="http://about.travis-ci.org/docs/user/build-configuration/#Build-Lifecycle">build lifecycle</a>.</p>
+<p>Just add the following to your <code>.travis.yml</code> (don&#39;t forget to <strong>replace</strong> HEROKU_APP_NAME!):</p>
+<pre><code><span class="label">after_success:</span>
+  - wget -qO- https://toolbelt<span class="preprocessor">.heroku</span><span class="preprocessor">.com</span>/install-ubuntu<span class="preprocessor">.sh</span> | sh
+  - git remote <span class="keyword">add</span> heroku git@heroku<span class="preprocessor">.com</span>:HEROKU_APP_NAME<span class="preprocessor">.git</span>
+  - echo <span class="string">"Host heroku.com"</span> &gt;&gt; ~/<span class="preprocessor">.ssh</span>/config
+  - echo <span class="string">"   StrictHostKeyChecking no"</span> &gt;&gt; ~/<span class="preprocessor">.ssh</span>/config
+  - echo <span class="string">"   CheckHostIP no"</span> &gt;&gt; ~/<span class="preprocessor">.ssh</span>/config
+  - echo <span class="string">"   UserKnownHostsFile=/dev/null"</span> &gt;&gt; ~/<span class="preprocessor">.ssh</span>/config
+  - yes | heroku keys:<span class="keyword">add</span>
+  - yes | git <span class="keyword">push</span> heroku master
+</code></pre>
+<p>This will install the Heroku toolbelt, and then configure your Travis worker to communicate with Heroku and finally push your code to it!</p>
+<p>And you&#39;re done! Now everytime you push your code to Github, Travis will build/test it and deploy it to Heroku!</p>
+<p>Here is the whole <code>.travis.yml</code>:</p>
+<pre><code>--- 
+<span class="label">language:</span> node_js
+<span class="label">env:</span> 
+  global: 
+  - secure: YOUR_ENCRYPTED_TOKEN
+<span class="label">after_success:</span>
+  - wget -qO- https://toolbelt<span class="preprocessor">.heroku</span><span class="preprocessor">.com</span>/install-ubuntu<span class="preprocessor">.sh</span> | sh
+  - git remote <span class="keyword">add</span> heroku git@heroku<span class="preprocessor">.com</span>:HEROKU_APP_NAME<span class="preprocessor">.git</span>
+  - echo <span class="string">"Host heroku.com"</span> &gt;&gt; ~/<span class="preprocessor">.ssh</span>/config
+  - echo <span class="string">"   StrictHostKeyChecking no"</span> &gt;&gt; ~/<span class="preprocessor">.ssh</span>/config
+  - echo <span class="string">"   CheckHostIP no"</span> &gt;&gt; ~/<span class="preprocessor">.ssh</span>/config
+  - echo <span class="string">"   UserKnownHostsFile=/dev/null"</span> &gt;&gt; ~/<span class="preprocessor">.ssh</span>/config
+  - yes | heroku keys:<span class="keyword">add</span>
+  - yes | git <span class="keyword">push</span> heroku master
+<span class="label">node_js:</span> 
+- <span class="number">0.8</span>
+</code></pre>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/02/18/continuous-deployement-with-github-travis-and-heroku-for-node.js/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-02-18T14:33:26.000Z"><a href="/2013/02/18/use-bower-with-heroku/">Feb 18 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/02/18/use-bower-with-heroku/">Use bower with heroku</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Hello!</p>
+<p><a href="http://twitter.github.com/bower/">Bower</a> is pretty awsome! <a href="http://www.heroku.com/">Heroku</a> too!</p>
+<p>Use them together!</p>
+<p>Without creating your own Heroku <a href="https://devcenter.heroku.com/articles/buildpacks">buildpack</a>, you can achieve that quite easily.</p>
+<p>Just add a dependency to Bower in your <code>package.json</code> and then rely on the <code>npm scripts</code> to execute a <code>postinstall</code> command (<a href="https://npmjs.org/doc/scripts.html">https://npmjs.org/doc/scripts.html</a>).</p>
+<p>So you&#39;ll end up with somthing like this in your <code>package.json</code>:</p>
+<pre><code><span class="string">"dependencies"</span>: {
+    <span class="string">"bower"</span>: <span class="string">"0.6.x"</span>
+},
+<span class="string">"scripts"</span>: {
+    <span class="string">"postinstall"</span>: <span class="string">"./node_modules/bower/bin/bower install"</span>
+}
+</code></pre>
+
+<p>And that&#39;s it! Heroku will run a <code>npm install</code> that will execute the <code>bower install</code>.</p>
+<p><em>Pros:</em> one command to rule them all.</p>
+<p><em>Cons:</em> you unnecessarily embed bower as a dependency.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/02/18/use-bower-with-heroku/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<nav id="pagination">
+  
+  
+  <div class="clearfix"></div>
+</nav></div></div>
+    <aside id="sidebar" class="alignright">
+<div class="search">
+  <form action="http://google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="Search">
+    <input type="hidden" name="q" value="site:xseignard.github.io">
+  </form>
+</div>
+
+
+
+
+<div class="widget tag">
+  <h3 class="title">Tags</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/github/">github</a><small>1</small></li>
+  
+    <li><a href="/tags/node/">node</a><small>4</small></li>
+  
+    <li><a href="/tags/travis/">travis</a><small>1</small></li>
+  
+    <li><a href="/tags/heroku/">heroku</a><small>1</small></li>
+  
+    <li><a href="/tags/js/">js</a><small>1</small></li>
+  
+    <li><a href="/tags/bower/">bower</a><small>1</small></li>
+  
+    <li><a href="/tags/processing/">processing</a><small>1</small></li>
+  
+    <li><a href="/tags/java/">java</a><small>1</small></li>
+  
+    <li><a href="/tags/raspberry/">raspberry</a><small>2</small></li>
+  
+    <li><a href="/tags/mocha/">mocha</a><small>1</small></li>
+  
+    <li><a href="/tags/istanbul/">istanbul</a><small>1</small></li>
+  
+    <li><a href="/tags/sonar/">sonar</a><small>1</small></li>
+  
+    <li><a href="/tags/DIY/">DIY</a><small>2</small></li>
+  
+    <li><a href="/tags/leapmotion/">leapmotion</a><small>1</small></li>
+  
+    <li><a href="/tags/diy/">diy</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+
+<div class="widget twitter">
+  <h3 class="title">Tweets</h3>
+  <ul id="tweets"></ul>
+</div>
+
+<script type="text/javascript">
+var twitter_conf = ['xavier_seignard', '364346162255368193'];
+</script>
+
+<script src="/js/twitter.js"></script>
+
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 @xavier_seignard
+  
+</div>
+<div class="alignright">
+  Proudly powered by <a href="http://zespia.tw/hexo/">Hexo</a><br/>
+  Gently hosted at <a href="http://github.com">Github</a><br/>
+  Nice background from <a href="http://subtlepatterns.com/">Subtle Patterns</a>
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+<script type="text/javascript">
+var disqus_shortname = 'xseignard';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
